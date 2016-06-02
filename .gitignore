@@ -12,3 +12,7 @@ src/RMC3/TEC_TSW-750.vtz
 *.vtp
 src/RMC3/TEC_TSW-750.sgd
 *.ced
+src/RMC3/TEC_TSW-750.vtp.ASV
+src/RMC3/TEC_Lite_RMC3_compiled.zip
+src/RMC3/TEC_TSW-750.vtp.ASV
+src/RMC3/TEC_Lite_RMC3_archive.zip
