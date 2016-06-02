@@ -1,0 +1,3 @@
+[submodule "crestron-tec-touchpanel"]
+	path = crestron-tec-touchpanel
+	url = https://github.com/byuoitav/crestron-tec-touchpanel
