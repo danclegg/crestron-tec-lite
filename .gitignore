@@ -1,3 +1,14 @@
 src/RMC3/hdmi-jack.png
 src/RMC3/hdmi.png
 src/RMC3/table.png
+src/RMC3/LICENSE
+src/RMC3/rca.png
+src/RMC3/vga.png
+src/RMC3/TEC_TSW-750__Device_Control_IPTV_IPTV Keypad.ced
+src/RMC3/TEC_TSW-750__Device_Control_IPTV_IPTV DPad.ced
+src/RMC3/TEC_TSW-750__Device_Control_Blu-ray_Blu-ray DPad.ced
+*.hash
+src/RMC3/TEC_TSW-750.vtz
+*.vtp
+src/RMC3/TEC_TSW-750.sgd
+*.ced
