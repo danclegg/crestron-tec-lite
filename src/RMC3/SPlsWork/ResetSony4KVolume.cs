@@ -81,8 +81,6 @@ namespace UserModule_RESETSONY4KVOLUME
     
     public override void LogosSplusInitialize()
     {
-        SocketInfo __socketinfo__ = new SocketInfo( 1, this );
-        InitialParametersClass.ResolveHostName = __socketinfo__.ResolveHostName;
         _SplusNVRAM = new SplusNVRAM( this );
         
         START_RESET = new Crestron.Logos.SplusObjects.DigitalInput( START_RESET__DigitalInput__, this );
