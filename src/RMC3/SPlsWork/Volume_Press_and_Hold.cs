@@ -29,24 +29,24 @@ namespace UserModule_VOLUME_PRESS_AND_HOLD
             {
                 SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
                 
-                __context__.SourceCodeLine = 33;
+                __context__.SourceCodeLine = 31;
                 VOLUME_UP  .Value = (ushort) ( 1 ) ; 
-                __context__.SourceCodeLine = 34;
-                Functions.Delay (  (int) ( 50 ) ) ; 
-                __context__.SourceCodeLine = 35;
+                __context__.SourceCodeLine = 32;
+                Functions.Delay (  (int) ( 7 ) ) ; 
+                __context__.SourceCodeLine = 33;
                 VOLUME_UP  .Value = (ushort) ( 0 ) ; 
-                __context__.SourceCodeLine = 37;
+                __context__.SourceCodeLine = 35;
                 while ( Functions.TestForTrue  ( ( UP_PRESS  .Value)  ) ) 
                     { 
-                    __context__.SourceCodeLine = 40;
+                    __context__.SourceCodeLine = 36;
                     VOLUME_UP  .Value = (ushort) ( 1 ) ; 
-                    __context__.SourceCodeLine = 41;
-                    Functions.Delay (  (int) ( 25 ) ) ; 
-                    __context__.SourceCodeLine = 42;
-                    VOLUME_UP  .Value = (ushort) ( 0 ) ; 
-                    __context__.SourceCodeLine = 43;
-                    Functions.Delay (  (int) ( 25 ) ) ; 
                     __context__.SourceCodeLine = 37;
+                    Functions.Delay (  (int) ( 7 ) ) ; 
+                    __context__.SourceCodeLine = 38;
+                    VOLUME_UP  .Value = (ushort) ( 0 ) ; 
+                    __context__.SourceCodeLine = 39;
+                    Functions.Delay (  (int) ( 7 ) ) ; 
+                    __context__.SourceCodeLine = 35;
                     } 
                 
                 
@@ -66,24 +66,24 @@ namespace UserModule_VOLUME_PRESS_AND_HOLD
         {
             SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
             
-            __context__.SourceCodeLine = 51;
+            __context__.SourceCodeLine = 44;
             VOLUME_DOWN  .Value = (ushort) ( 1 ) ; 
-            __context__.SourceCodeLine = 52;
-            Functions.Delay (  (int) ( 50 ) ) ; 
-            __context__.SourceCodeLine = 53;
+            __context__.SourceCodeLine = 45;
+            Functions.Delay (  (int) ( 7 ) ) ; 
+            __context__.SourceCodeLine = 46;
             VOLUME_DOWN  .Value = (ushort) ( 0 ) ; 
-            __context__.SourceCodeLine = 55;
+            __context__.SourceCodeLine = 48;
             while ( Functions.TestForTrue  ( ( DOWN_PRESS  .Value)  ) ) 
                 { 
-                __context__.SourceCodeLine = 58;
+                __context__.SourceCodeLine = 49;
                 VOLUME_DOWN  .Value = (ushort) ( 1 ) ; 
-                __context__.SourceCodeLine = 59;
-                Functions.Delay (  (int) ( 25 ) ) ; 
-                __context__.SourceCodeLine = 60;
+                __context__.SourceCodeLine = 50;
+                Functions.Delay (  (int) ( 7 ) ) ; 
+                __context__.SourceCodeLine = 51;
                 VOLUME_DOWN  .Value = (ushort) ( 0 ) ; 
-                __context__.SourceCodeLine = 61;
-                Functions.Delay (  (int) ( 25 ) ) ; 
-                __context__.SourceCodeLine = 55;
+                __context__.SourceCodeLine = 52;
+                Functions.Delay (  (int) ( 7 ) ) ; 
+                __context__.SourceCodeLine = 48;
                 } 
             
             
@@ -101,7 +101,7 @@ public override object FunctionMain (  object __obj__ )
     {
         SplusExecutionContext __context__ = SplusFunctionMainStartCode();
         
-        __context__.SourceCodeLine = 71;
+        __context__.SourceCodeLine = 60;
         WaitForInitializationComplete ( ) ; 
         
         
@@ -114,6 +114,8 @@ public override object FunctionMain (  object __obj__ )
 
 public override void LogosSplusInitialize()
 {
+    SocketInfo __socketinfo__ = new SocketInfo( 1, this );
+    InitialParametersClass.ResolveHostName = __socketinfo__.ResolveHostName;
     _SplusNVRAM = new SplusNVRAM( this );
     
     UP_PRESS = new Crestron.Logos.SplusObjects.DigitalInput( UP_PRESS__DigitalInput__, this );

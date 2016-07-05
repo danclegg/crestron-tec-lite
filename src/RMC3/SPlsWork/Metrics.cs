@@ -46,7 +46,6 @@ namespace UserModule_METRICS
         Crestron.Logos.SplusObjects.DigitalInput AUDIO_ONLY_PRESS;
         Crestron.Logos.SplusObjects.DigitalInput CLIENTCONNECTED;
         Crestron.Logos.SplusObjects.DigitalInput SYSTEMREADY;
-        Crestron.Logos.SplusObjects.AnalogInput VOLUMEVAL;
         Crestron.Logos.SplusObjects.StringInput CPHOSTNAME;
         Crestron.Logos.SplusObjects.StringInput CPIP;
         Crestron.Logos.SplusObjects.StringInput CPMACADDR;
@@ -95,10 +94,59 @@ namespace UserModule_METRICS
         CrestronString MESSAGE;
         ushort REPORTINGHOSTPORT = 0;
         ushort RECONNECTTIME = 0;
+        private CrestronString SANITIZE (  SplusExecutionContext __context__, CrestronString MSG ) 
+            { 
+            CrestronString STRIPPEDMESSAGE;
+            CrestronString CHAR;
+            STRIPPEDMESSAGE  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 1024, this );
+            CHAR  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 1, this );
+            
+            ushort I = 0;
+            
+            
+            __context__.SourceCodeLine = 89;
+            ushort __FN_FORSTART_VAL__1 = (ushort) ( 1 ) ;
+            ushort __FN_FOREND_VAL__1 = (ushort)Functions.Length( MSG ); 
+            int __FN_FORSTEP_VAL__1 = (int)1; 
+            for ( I  = __FN_FORSTART_VAL__1; (__FN_FORSTEP_VAL__1 > 0)  ? ( (I  >= __FN_FORSTART_VAL__1) && (I  <= __FN_FOREND_VAL__1) ) : ( (I  <= __FN_FORSTART_VAL__1) && (I  >= __FN_FOREND_VAL__1) ) ; I  += (ushort)__FN_FORSTEP_VAL__1) 
+                { 
+                __context__.SourceCodeLine = 91;
+                CHAR  .UpdateValue ( Functions.Mid ( MSG ,  (int) ( I ) ,  (int) ( 1 ) )  ) ; 
+                __context__.SourceCodeLine = 93;
+                if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( (Functions.TestForTrue ( Functions.BoolToInt (CHAR != "_") ) && Functions.TestForTrue ( Functions.BoolToInt (CHAR != "/") )) ))  ) ) 
+                    { 
+                    __context__.SourceCodeLine = 95;
+                    STRIPPEDMESSAGE  .UpdateValue ( STRIPPEDMESSAGE + CHAR  ) ; 
+                    } 
+                
+                __context__.SourceCodeLine = 89;
+                } 
+            
+            __context__.SourceCodeLine = 99;
+            while ( Functions.TestForTrue  ( ( Functions.BoolToInt (Functions.Mid( STRIPPEDMESSAGE , (int)( 1 ) , (int)( 1 ) ) == " "))  ) ) 
+                { 
+                __context__.SourceCodeLine = 101;
+                STRIPPEDMESSAGE  .UpdateValue ( Functions.Right ( STRIPPEDMESSAGE ,  (int) ( (Functions.Length( STRIPPEDMESSAGE ) - 1) ) )  ) ; 
+                __context__.SourceCodeLine = 99;
+                } 
+            
+            __context__.SourceCodeLine = 104;
+            while ( Functions.TestForTrue  ( ( Functions.BoolToInt (Functions.Mid( STRIPPEDMESSAGE , (int)( Functions.Length( STRIPPEDMESSAGE ) ) , (int)( 1 ) ) == " "))  ) ) 
+                { 
+                __context__.SourceCodeLine = 106;
+                STRIPPEDMESSAGE  .UpdateValue ( Functions.Left ( STRIPPEDMESSAGE ,  (int) ( (Functions.Length( STRIPPEDMESSAGE ) - 1) ) )  ) ; 
+                __context__.SourceCodeLine = 104;
+                } 
+            
+            __context__.SourceCodeLine = 109;
+            return ( STRIPPEDMESSAGE ) ; 
+            
+            }
+            
         private void LOG (  SplusExecutionContext __context__, CrestronString MSG ) 
             { 
             
-            __context__.SourceCodeLine = 88;
+            __context__.SourceCodeLine = 114;
             Print( "\r\n{0}", MSG ) ; 
             
             }
@@ -106,7 +154,7 @@ namespace UserModule_METRICS
         private void ERROR (  SplusExecutionContext __context__, CrestronString MSG ) 
             { 
             
-            __context__.SourceCodeLine = 94;
+            __context__.SourceCodeLine = 119;
             LOG (  __context__ , MSG) ; 
             
             }
@@ -114,9 +162,7 @@ namespace UserModule_METRICS
         private void SEND (  SplusExecutionContext __context__, CrestronString MSG ) 
             { 
             
-            __context__.SourceCodeLine = 99;
-            Print( "Sending: {0}", MSG ) ; 
-            __context__.SourceCodeLine = 100;
+            __context__.SourceCodeLine = 125;
             Functions.SocketSend ( CLIENT , MSG ) ; 
             
             }
@@ -131,30 +177,30 @@ namespace UserModule_METRICS
             TEMP  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 1024, this );
             
             
-            __context__.SourceCodeLine = 108;
+            __context__.SourceCodeLine = 133;
             if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( (Functions.TestForTrue ( Functions.BoolToInt ( (Functions.TestForTrue ( Functions.BoolToInt ( (Functions.TestForTrue ( Functions.BoolToInt ( Functions.Find( "building" , INPUTSTRING ) > 0 ) ) && Functions.TestForTrue ( Functions.BoolToInt ( Functions.Find( "roomNumber" , INPUTSTRING ) > 0 ) )) ) ) && Functions.TestForTrue ( Functions.BoolToInt ( Functions.Find( "floor" , INPUTSTRING ) > 0 ) )) ) ) && Functions.TestForTrue ( Functions.BoolToInt ( Functions.Find( "building" , INPUTSTRING ) > 0 ) )) ))  ) ) 
                 { 
-                __context__.SourceCodeLine = 110;
+                __context__.SourceCodeLine = 135;
                 TRASH  .UpdateValue ( Functions.Remove ( ":[" , INPUTSTRING )  ) ; 
-                __context__.SourceCodeLine = 111;
+                __context__.SourceCodeLine = 136;
                 PARSETHISSTRING  .UpdateValue ( INPUTSTRING  ) ; 
-                __context__.SourceCodeLine = 114;
+                __context__.SourceCodeLine = 139;
                 HOSTLON  .UpdateValue ( Functions.Remove ( "," , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 117;
+                __context__.SourceCodeLine = 142;
                 HOSTLAT  .UpdateValue ( Functions.Remove ( "]," , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 120;
+                __context__.SourceCodeLine = 145;
                 TRASH  .UpdateValue ( Functions.Remove ( ":\"" , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 121;
+                __context__.SourceCodeLine = 146;
                 HOSTROOM  .UpdateValue ( Functions.Remove ( "\"" , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 124;
+                __context__.SourceCodeLine = 149;
                 TRASH  .UpdateValue ( Functions.Remove ( ":\"" , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 125;
+                __context__.SourceCodeLine = 150;
                 HOSTFLOOR  .UpdateValue ( Functions.Remove ( "," , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 129;
+                __context__.SourceCodeLine = 154;
                 TRASH  .UpdateValue ( Functions.Remove ( ":\"" , PARSETHISSTRING )  ) ; 
-                __context__.SourceCodeLine = 130;
+                __context__.SourceCodeLine = 155;
                 TEMP  .UpdateValue ( PARSETHISSTRING  ) ; 
-                __context__.SourceCodeLine = 131;
+                __context__.SourceCodeLine = 156;
                 HOSTBLDG  .UpdateValue ( Functions.Remove ( "\"" , TEMP )  ) ; 
                 } 
             
@@ -163,7 +209,7 @@ namespace UserModule_METRICS
             
         private void BUILDHTTPMESSAGE (  SplusExecutionContext __context__, CrestronString EVENTACTOR , CrestronString EVENTACTION , CrestronString USERORSYSTEM , CrestronString SESSN ) 
             { 
-            short OFFSET = 0;
+            short DST = 0;
             short MNUM = 0;
             short YNUM = 0;
             short DNUM = 0;
@@ -241,120 +287,136 @@ namespace UserModule_METRICS
             ushort SPACEPOSITION = 0;
             
             
-            __context__.SourceCodeLine = 160;
+            __context__.SourceCodeLine = 185;
             DESCRIPTION  .UpdateValue ( ""  ) ; 
-            __context__.SourceCodeLine = 161;
+            __context__.SourceCodeLine = 186;
             IPADDRESS  .UpdateValue ( HOSTIP  ) ; 
-            __context__.SourceCodeLine = 162;
+            __context__.SourceCodeLine = 187;
             MAC  .UpdateValue ( HOSTMAC  ) ; 
-            __context__.SourceCodeLine = 163;
+            __context__.SourceCodeLine = 188;
             BUILDING  .UpdateValue ( HOSTBLDG  ) ; 
-            __context__.SourceCodeLine = 164;
+            __context__.SourceCodeLine = 189;
             ROOMNUMBER  .UpdateValue ( HOSTROOM  ) ; 
-            __context__.SourceCodeLine = 165;
+            __context__.SourceCodeLine = 190;
             LAT  .UpdateValue ( HOSTLAT  ) ; 
-            __context__.SourceCodeLine = 166;
+            __context__.SourceCodeLine = 191;
             LON  .UpdateValue ( HOSTLON  ) ; 
-            __context__.SourceCodeLine = 167;
+            __context__.SourceCodeLine = 192;
             FLR  .UpdateValue ( HOSTFLOOR  ) ; 
-            __context__.SourceCodeLine = 168;
+            __context__.SourceCodeLine = 193;
             ACTOR  .UpdateValue ( EVENTACTOR  ) ; 
-            __context__.SourceCodeLine = 169;
+            __context__.SourceCodeLine = 194;
             DESC  .UpdateValue ( EVENTACTION  ) ; 
-            __context__.SourceCodeLine = 170;
+            __context__.SourceCodeLine = 195;
             TYPE  .UpdateValue ( USERORSYSTEM  ) ; 
-            __context__.SourceCodeLine = 172;
+            __context__.SourceCodeLine = 197;
             SPACEPOSITION = (ushort) ( Functions.Find( " " , HOSTNAME ) ) ; 
-            __context__.SourceCodeLine = 173;
+            __context__.SourceCodeLine = 198;
             if ( Functions.TestForTrue  ( ( Functions.BoolToInt (SPACEPOSITION == 1))  ) ) 
                 { 
-                __context__.SourceCodeLine = 174;
+                __context__.SourceCodeLine = 199;
                 HOSTNAME  .UpdateValue ( Functions.Right ( HOSTNAME ,  (int) ( (Functions.Length( HOSTNAME ) - 1) ) )  ) ; 
                 } 
             
-            __context__.SourceCodeLine = 177;
-            OFFSET = (short) ( Functions.GetGmtOffset() ) ; 
-            __context__.SourceCodeLine = 178;
-            MNUM = (short) ( Functions.GetMonthNum() ) ; 
-            __context__.SourceCodeLine = 179;
-            YNUM = (short) ( Functions.GetYearNum() ) ; 
-            __context__.SourceCodeLine = 180;
-            DNUM = (short) ( Functions.GetDateNum() ) ; 
-            __context__.SourceCodeLine = 182;
-            DATESTR  .UpdateValue ( Functions.ItoA (  (int) ( YNUM ) ) + "-" + Functions.ItoA (  (int) ( MNUM ) ) + "-" + Functions.ItoA (  (int) ( DNUM ) )  ) ; 
-            __context__.SourceCodeLine = 183;
-            TIMESTR  .UpdateValue ( Functions.Time ( )  ) ; 
-            __context__.SourceCodeLine = 185;
-            TIMESTAMP  .UpdateValue ( DATESTR + "T" + TIMESTR + "Z"  ) ; 
-            __context__.SourceCodeLine = 187;
-            INNERMSG1  .UpdateValue ( "{\"type\": \"" + TYPE + "\",\"timestamp\": \"" + TIMESTAMP + "\",\"eventTime\": \"" + TIMESTR + "\",\"eventDate\": \"" + DATESTR + "\",\"device\": {\"hostname\": \"" + HOSTNAME + "\", \"description\": \""  ) ; 
-            __context__.SourceCodeLine = 188;
-            INNERMSG2  .UpdateValue ( "" + DESCRIPTION + "\", \"ipAddress\": \"" + IPADDRESS + "\", \"macAddress\": \"" + MAC + "\"}, \"room\": { \"building\": \"" + BUILDING  ) ; 
-            __context__.SourceCodeLine = 189;
-            INNERMSG3  .UpdateValue ( "\", \"roomNumber\": \"" + ROOMNUMBER + "\",\"coordinates\": \"" + LAT + "," + LON + "\", \"floor\": \"" + FLR + "\""  ) ; 
-            __context__.SourceCodeLine = 190;
-            INNERMSG4  .UpdateValue ( "},\"action\": {\"actor\": \"" + ACTOR + "\", \"description\": \"" + DESC + "\"}, \"session\": \"" + SESSION + "\"}"  ) ; 
-            __context__.SourceCodeLine = 191;
-            CONTENTLENGTH = (short) ( (((Functions.Length( INNERMSG1 ) + Functions.Length( INNERMSG2 )) + Functions.Length( INNERMSG3 )) + Functions.Length( INNERMSG4 )) ) ; 
-            __context__.SourceCodeLine = 192;
-            CLSTRING  .UpdateValue ( Functions.ItoA (  (int) ( CONTENTLENGTH ) )  ) ; 
-            __context__.SourceCodeLine = 194;
-            HEADER1  .UpdateValue ( "POST events/" + USERORSYSTEM + "/ HTTP/1.1" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 195;
-            HEADER2  .UpdateValue ( "Host: " + "search-byu-oit-av-metrics-ruenjnrqfuhghh7omvtmgcqe7m.us-west-1.es.amazonaws.com" + ":" + Functions.ItoA (  (int) ( REPORTINGHOSTPORT ) ) + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 196;
-            HEADER3  .UpdateValue ( "Connection: keep-alive" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 197;
-            HEADER4  .UpdateValue ( "Content-Length: " + CLSTRING + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 198;
-            HEADER5  .UpdateValue ( "Content-type: text/plain;charset=UTF-8" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 199;
-            HEADER6  .UpdateValue ( "Accept: */*" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 200;
-            Print( "{0}", HEADER1 ) ; 
-            __context__.SourceCodeLine = 201;
-            Print( "{0}", HEADER1 ) ; 
             __context__.SourceCodeLine = 202;
-            Print( "{0}", HEADER2 ) ; 
+            MNUM = (short) ( Functions.GetMonthNum() ) ; 
             __context__.SourceCodeLine = 203;
-            Print( "{0}", HEADER3 ) ; 
+            YNUM = (short) ( Functions.GetYearNum() ) ; 
             __context__.SourceCodeLine = 204;
-            Print( "{0}", HEADER4 ) ; 
-            __context__.SourceCodeLine = 205;
-            Print( "{0}", HEADER5 ) ; 
+            DNUM = (short) ( Functions.GetDateNum() ) ; 
             __context__.SourceCodeLine = 206;
-            Print( "{0}", HEADER6 ) ; 
+            DATESTR  .UpdateValue ( Functions.ItoA (  (int) ( YNUM ) ) + "-" + Functions.ItoA (  (int) ( MNUM ) ) + "-" + Functions.ItoA (  (int) ( DNUM ) )  ) ; 
             __context__.SourceCodeLine = 207;
-            Print( "{0}", "\r\n" ) ; 
+            TIMESTR  .UpdateValue ( Functions.Time ( )  ) ; 
             __context__.SourceCodeLine = 208;
-            Print( "{0}", INNERMSG1 ) ; 
-            __context__.SourceCodeLine = 209;
-            Print( "{0}", INNERMSG2 ) ; 
-            __context__.SourceCodeLine = 210;
-            Print( "{0}", INNERMSG3 ) ; 
+            DST = (short) ( Functions.GetDst() ) ; 
             __context__.SourceCodeLine = 211;
-            Print( "{0}", INNERMSG4 ) ; 
-            __context__.SourceCodeLine = 213;
-            SEND (  __context__ , HEADER1) ; 
-            __context__.SourceCodeLine = 214;
-            SEND (  __context__ , HEADER2) ; 
-            __context__.SourceCodeLine = 215;
-            SEND (  __context__ , HEADER3) ; 
-            __context__.SourceCodeLine = 216;
-            SEND (  __context__ , HEADER4) ; 
+            if ( Functions.TestForTrue  ( ( Functions.BoolToInt (DST == 1))  ) ) 
+                { 
+                __context__.SourceCodeLine = 212;
+                TIMESTAMP  .UpdateValue ( DATESTR + "T" + TIMESTR + "-0600"  ) ; 
+                } 
+            
+            else 
+                {
+                __context__.SourceCodeLine = 213;
+                if ( Functions.TestForTrue  ( ( Functions.BoolToInt (DST == 2))  ) ) 
+                    { 
+                    __context__.SourceCodeLine = 214;
+                    TIMESTAMP  .UpdateValue ( DATESTR + "T" + TIMESTR + "-0700"  ) ; 
+                    } 
+                
+                }
+            
             __context__.SourceCodeLine = 217;
-            SEND (  __context__ , HEADER5) ; 
+            INNERMSG1  .UpdateValue ( "{\"type\": \"" + TYPE + "\",\"timestamp\": \"" + TIMESTAMP + "\",\"eventTime\": \"" + TIMESTR + "\",\"eventDate\": \"" + DATESTR + "\",\"device\": {\"hostname\": \"" + HOSTNAME + "\", \"description\": \""  ) ; 
             __context__.SourceCodeLine = 218;
-            SEND (  __context__ , HEADER6) ; 
+            INNERMSG2  .UpdateValue ( "" + DESCRIPTION + "\", \"ipAddress\": \"" + IPADDRESS + "\", \"macAddress\": \"" + MAC + "\"}, \"room\": { \"building\": \"" + BUILDING  ) ; 
             __context__.SourceCodeLine = 219;
-            SEND (  __context__ , "\r\n") ; 
+            INNERMSG3  .UpdateValue ( "\", \"roomNumber\": \"" + ROOMNUMBER + "\",\"coordinates\": \"" + LAT + "," + LON + "\", \"floor\": \"" + FLR + "\""  ) ; 
             __context__.SourceCodeLine = 220;
-            SEND (  __context__ , INNERMSG1) ; 
+            INNERMSG4  .UpdateValue ( "},\"action\": {\"actor\": \"" + ACTOR + "\", \"description\": \"" + DESC + "\"}, \"session\": \"" + SESSION + "\"}"  ) ; 
             __context__.SourceCodeLine = 221;
-            SEND (  __context__ , INNERMSG2) ; 
+            CONTENTLENGTH = (short) ( (((Functions.Length( INNERMSG1 ) + Functions.Length( INNERMSG2 )) + Functions.Length( INNERMSG3 )) + Functions.Length( INNERMSG4 )) ) ; 
             __context__.SourceCodeLine = 222;
+            CLSTRING  .UpdateValue ( Functions.ItoA (  (int) ( CONTENTLENGTH ) )  ) ; 
+            __context__.SourceCodeLine = 224;
+            HEADER1  .UpdateValue ( "POST /events/" + USERORSYSTEM + "/ HTTP/1.1" + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 225;
+            HEADER2  .UpdateValue ( "Host: " + "search-byu-oit-av-metrics-ruenjnrqfuhghh7omvtmgcqe7m.us-west-1.es.amazonaws.com" + ":" + Functions.ItoA (  (int) ( REPORTINGHOSTPORT ) ) + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 226;
+            HEADER3  .UpdateValue ( "Connection: keep-alive" + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 227;
+            HEADER4  .UpdateValue ( "Content-Length: " + CLSTRING + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 228;
+            HEADER5  .UpdateValue ( "Content-type: text/plain;charset=UTF-8" + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 229;
+            HEADER6  .UpdateValue ( "Accept: */*" + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 230;
+            Print( "{0}", HEADER1 ) ; 
+            __context__.SourceCodeLine = 231;
+            Print( "{0}", HEADER1 ) ; 
+            __context__.SourceCodeLine = 232;
+            Print( "{0}", HEADER2 ) ; 
+            __context__.SourceCodeLine = 233;
+            Print( "{0}", HEADER3 ) ; 
+            __context__.SourceCodeLine = 234;
+            Print( "{0}", HEADER4 ) ; 
+            __context__.SourceCodeLine = 235;
+            Print( "{0}", HEADER5 ) ; 
+            __context__.SourceCodeLine = 236;
+            Print( "{0}", HEADER6 ) ; 
+            __context__.SourceCodeLine = 237;
+            Print( "{0}", "\r\n" ) ; 
+            __context__.SourceCodeLine = 238;
+            Print( "{0}", INNERMSG1 ) ; 
+            __context__.SourceCodeLine = 239;
+            Print( "{0}", INNERMSG2 ) ; 
+            __context__.SourceCodeLine = 240;
+            Print( "{0}", INNERMSG3 ) ; 
+            __context__.SourceCodeLine = 241;
+            Print( "{0}", INNERMSG4 ) ; 
+            __context__.SourceCodeLine = 243;
+            SEND (  __context__ , HEADER1) ; 
+            __context__.SourceCodeLine = 244;
+            SEND (  __context__ , HEADER2) ; 
+            __context__.SourceCodeLine = 245;
+            SEND (  __context__ , HEADER3) ; 
+            __context__.SourceCodeLine = 246;
+            SEND (  __context__ , HEADER4) ; 
+            __context__.SourceCodeLine = 247;
+            SEND (  __context__ , HEADER5) ; 
+            __context__.SourceCodeLine = 248;
+            SEND (  __context__ , HEADER6) ; 
+            __context__.SourceCodeLine = 249;
+            SEND (  __context__ , "\r\n") ; 
+            __context__.SourceCodeLine = 250;
+            SEND (  __context__ , INNERMSG1) ; 
+            __context__.SourceCodeLine = 251;
+            SEND (  __context__ , INNERMSG2) ; 
+            __context__.SourceCodeLine = 252;
             SEND (  __context__ , INNERMSG3) ; 
-            __context__.SourceCodeLine = 223;
+            __context__.SourceCodeLine = 253;
             SEND (  __context__ , INNERMSG4) ; 
             
             }
@@ -382,75 +444,25 @@ namespace UserModule_METRICS
             TMP  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 30, this );
             
             
-            __context__.SourceCodeLine = 232;
+            __context__.SourceCodeLine = 262;
             TMP  .UpdateValue ( ""  ) ; 
-            __context__.SourceCodeLine = 233;
+            __context__.SourceCodeLine = 263;
             LEFTOVER  .UpdateValue ( ""  ) ; 
-            __context__.SourceCodeLine = 234;
+            __context__.SourceCodeLine = 264;
             TICKS = (ushort) ( Functions.GetTicks() ) ; 
-            __context__.SourceCodeLine = 236;
+            __context__.SourceCodeLine = 266;
             GENSESSION  .UpdateValue ( Functions.ItoA (  (int) ( TICKS ) )  ) ; 
-            __context__.SourceCodeLine = 237;
+            __context__.SourceCodeLine = 267;
             TMPMAC  .UpdateValue ( HOSTMAC  ) ; 
-            __context__.SourceCodeLine = 238;
+            __context__.SourceCodeLine = 268;
             MNUM = (short) ( Functions.GetMonthNum() ) ; 
-            __context__.SourceCodeLine = 239;
+            __context__.SourceCodeLine = 269;
             YNUM = (short) ( Functions.GetYearNum() ) ; 
-            __context__.SourceCodeLine = 240;
+            __context__.SourceCodeLine = 270;
             DNUM = (short) ( Functions.GetDateNum() ) ; 
-            __context__.SourceCodeLine = 242;
+            __context__.SourceCodeLine = 272;
             if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( (Functions.TestForTrue ( Functions.BoolToInt ( Functions.Length( TMPMAC ) > 0 ) ) && Functions.TestForTrue ( Functions.BoolToInt ( Functions.Find( "." , TMPMAC ) > 0 ) )) ))  ) ) 
                 { 
-                __context__.SourceCodeLine = 244;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 245;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 246;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 247;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 248;
-                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 250;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 251;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 252;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 253;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 254;
-                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 256;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 257;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 258;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 259;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 260;
-                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 262;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 263;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 264;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 265;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 266;
-                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 268;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 269;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 270;
-                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
-                __context__.SourceCodeLine = 271;
-                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
-                __context__.SourceCodeLine = 272;
-                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
                 __context__.SourceCodeLine = 274;
                 CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
                 __context__.SourceCodeLine = 275;
@@ -459,17 +471,67 @@ namespace UserModule_METRICS
                 CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
                 __context__.SourceCodeLine = 277;
                 LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 278;
+                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 280;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 281;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 282;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 283;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 284;
+                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 286;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 287;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 288;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 289;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 290;
+                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 292;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 293;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 294;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 295;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 296;
+                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 298;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 299;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 300;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 301;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 302;
+                PERIOD = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 304;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 305;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
+                __context__.SourceCodeLine = 306;
+                CH = (ushort) ( Functions.GetC( TMPMAC ) ) ; 
+                __context__.SourceCodeLine = 307;
+                LEFTOVER  .UpdateValue ( LEFTOVER + Functions.Chr (  (int) ( CH ) )  ) ; 
                 } 
             
-            __context__.SourceCodeLine = 279;
+            __context__.SourceCodeLine = 309;
             TMPMAC  .UpdateValue ( LEFTOVER  ) ; 
-            __context__.SourceCodeLine = 280;
+            __context__.SourceCodeLine = 310;
             HOSTMAC  .UpdateValue ( TMPMAC  ) ; 
-            __context__.SourceCodeLine = 281;
+            __context__.SourceCodeLine = 311;
             STORESESSIONID  .UpdateValue ( TMPMAC + "-" + GENSESSION + "-" + Functions.ItoA (  (int) ( YNUM ) ) + Functions.ItoA (  (int) ( MNUM ) ) + Functions.ItoA (  (int) ( DNUM ) )  ) ; 
-            __context__.SourceCodeLine = 282;
+            __context__.SourceCodeLine = 312;
             MSG  .UpdateValue ( "Session START: " + GENSESSION  ) ; 
-            __context__.SourceCodeLine = 284;
+            __context__.SourceCodeLine = 314;
             BUILDHTTPMESSAGE (  __context__ , "session", MSG, "user", SESSION) ; 
             
             }
@@ -480,11 +542,11 @@ namespace UserModule_METRICS
             MSG  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 256, this );
             
             
-            __context__.SourceCodeLine = 291;
+            __context__.SourceCodeLine = 321;
             MSG  .UpdateValue ( "Session STOP: " + SESSION  ) ; 
-            __context__.SourceCodeLine = 293;
+            __context__.SourceCodeLine = 323;
             STORESESSIONID  .UpdateValue ( " "  ) ; 
-            __context__.SourceCodeLine = 296;
+            __context__.SourceCodeLine = 326;
             BUILDHTTPMESSAGE (  __context__ , "session", MSG, "user", SESSION) ; 
             
             }
@@ -516,35 +578,35 @@ namespace UserModule_METRICS
             CLSTRING  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 1024, this );
             
             
-            __context__.SourceCodeLine = 305;
+            __context__.SourceCodeLine = 336;
             CONTENTLENGTH = (short) ( 0 ) ; 
-            __context__.SourceCodeLine = 306;
+            __context__.SourceCodeLine = 337;
             CLSTRING  .UpdateValue ( Functions.ItoA (  (int) ( CONTENTLENGTH ) )  ) ; 
-            __context__.SourceCodeLine = 308;
-            HEADER1  .UpdateValue ( "GET configuration/device/" + HOSTNAME + "?_source_include=" + FIELD + " HTTP/1.1" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 309;
+            __context__.SourceCodeLine = 339;
+            HEADER1  .UpdateValue ( "GET /configuration/device/" + HOSTNAME + "?_source_include=" + FIELD + " HTTP/1.1" + "\r\n"  ) ; 
+            __context__.SourceCodeLine = 340;
             HEADER2  .UpdateValue ( "Host: " + "search-byu-oit-av-metrics-ruenjnrqfuhghh7omvtmgcqe7m.us-west-1.es.amazonaws.com" + ":" + Functions.ItoA (  (int) ( REPORTINGHOSTPORT ) ) + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 310;
+            __context__.SourceCodeLine = 341;
             HEADER3  .UpdateValue ( "Connection: keep-alive" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 311;
+            __context__.SourceCodeLine = 342;
             HEADER4  .UpdateValue ( "Content-Length: " + CLSTRING + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 312;
+            __context__.SourceCodeLine = 343;
             HEADER5  .UpdateValue ( "Content-type: text/plain;charset=UTF-8" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 313;
+            __context__.SourceCodeLine = 344;
             HEADER6  .UpdateValue ( "Accept: */*" + "\r\n"  ) ; 
-            __context__.SourceCodeLine = 315;
+            __context__.SourceCodeLine = 346;
             SEND (  __context__ , HEADER1) ; 
-            __context__.SourceCodeLine = 316;
+            __context__.SourceCodeLine = 347;
             SEND (  __context__ , HEADER2) ; 
-            __context__.SourceCodeLine = 317;
+            __context__.SourceCodeLine = 348;
             SEND (  __context__ , HEADER3) ; 
-            __context__.SourceCodeLine = 318;
+            __context__.SourceCodeLine = 349;
             SEND (  __context__ , HEADER4) ; 
-            __context__.SourceCodeLine = 319;
+            __context__.SourceCodeLine = 350;
             SEND (  __context__ , HEADER5) ; 
-            __context__.SourceCodeLine = 320;
+            __context__.SourceCodeLine = 351;
             SEND (  __context__ , HEADER6) ; 
-            __context__.SourceCodeLine = 321;
+            __context__.SourceCodeLine = 352;
             SEND (  __context__ , "\r\n") ; 
             
             }
@@ -557,9 +619,9 @@ namespace UserModule_METRICS
             {
                 SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
                 
-                __context__.SourceCodeLine = 341;
+                __context__.SourceCodeLine = 372;
                 STARTSESSION (  __context__  ) ; 
-                __context__.SourceCodeLine = 344;
+                __context__.SourceCodeLine = 375;
                 BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Startup", "user", SESSION) ; 
                 
                 
@@ -578,9 +640,9 @@ namespace UserModule_METRICS
         {
             SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
             
-            __context__.SourceCodeLine = 351;
+            __context__.SourceCodeLine = 382;
             BUILDHTTPMESSAGE (  __context__ , "touchpanel", "System Off", "user", SESSION) ; 
-            __context__.SourceCodeLine = 355;
+            __context__.SourceCodeLine = 386;
             ENDSESSION (  __context__  ) ; 
             
             
@@ -599,7 +661,7 @@ object PROGRAM_VOLUME_DOWN_OnRelease_2 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 361;
+        __context__.SourceCodeLine = 392;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Volume Down", "user", SESSION) ; 
         
         
@@ -618,7 +680,7 @@ object PROGRAM_VOLUME_UP_OnRelease_3 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 368;
+        __context__.SourceCodeLine = 399;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Volume Up", "user", SESSION) ; 
         
         
@@ -637,7 +699,7 @@ object SELECT_BLANK_OnRelease_4 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 375;
+        __context__.SourceCodeLine = 406;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Blank", "user", SESSION) ; 
         
         
@@ -656,7 +718,7 @@ object SELECT_DEVICE_CONTROL_IPTV_OnRelease_5 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 382;
+        __context__.SourceCodeLine = 413;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Device Control - IPTV", "user", SESSION) ; 
         
         
@@ -675,7 +737,7 @@ object SELECT_HDMI_CABLE_OnRelease_6 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 389;
+        __context__.SourceCodeLine = 420;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "HDMI Cable", "user", SESSION) ; 
         
         
@@ -694,7 +756,7 @@ object SELECT_HDMI_JACK_OnRelease_7 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 396;
+        __context__.SourceCodeLine = 427;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "HDMI Jack", "user", SESSION) ; 
         
         
@@ -713,7 +775,7 @@ object SELECT_IPTV_OnRelease_8 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 403;
+        __context__.SourceCodeLine = 434;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "IPTV", "user", SESSION) ; 
         
         
@@ -732,7 +794,7 @@ object SELECT_LOCAL_INPUT_OnRelease_9 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 410;
+        __context__.SourceCodeLine = 441;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Local Input", "user", SESSION) ; 
         
         
@@ -751,7 +813,7 @@ object SELECT_REMOTE_INPUT1_OnRelease_10 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 417;
+        __context__.SourceCodeLine = 448;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", INPUT6, "user", SESSION) ; 
         
         
@@ -770,7 +832,7 @@ object SELECT_REMOTE_INPUT2_OnRelease_11 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 423;
+        __context__.SourceCodeLine = 454;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", INPUT7, "user", SESSION) ; 
         
         
@@ -789,7 +851,7 @@ object SELECT_VGA_CABLE_OnRelease_12 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 429;
+        __context__.SourceCodeLine = 460;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "VGA Cable", "user", SESSION) ; 
         
         
@@ -808,7 +870,7 @@ object HELP_MENU_PRESS_OnRelease_13 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 436;
+        __context__.SourceCodeLine = 467;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Help Menu", "user", SESSION) ; 
         
         
@@ -827,7 +889,7 @@ object HOME_BUTTON_OnRelease_14 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 443;
+        __context__.SourceCodeLine = 474;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Home Button", "user", SESSION) ; 
         
         
@@ -846,7 +908,7 @@ object SELECT_AV_JACK_OnRelease_15 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 450;
+        __context__.SourceCodeLine = 481;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "AV Jack", "user", SESSION) ; 
         
         
@@ -865,7 +927,7 @@ object SELECT_BLURAY_OnRelease_16 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 457;
+        __context__.SourceCodeLine = 488;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Blu-ray", "user", SESSION) ; 
         
         
@@ -884,7 +946,7 @@ object SELECT_DEVICE_CONTROL_BLURAY_OnRelease_17 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 464;
+        __context__.SourceCodeLine = 495;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Device Control - Blu-ray", "user", SESSION) ; 
         
         
@@ -903,7 +965,7 @@ object SELECT_PA_CONTROL_OnRelease_18 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 471;
+        __context__.SourceCodeLine = 502;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "PA Control", "user", SESSION) ; 
         
         
@@ -922,7 +984,7 @@ object PROGRAM_VOLUME_SLIDER_PRESS_OnRelease_19 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 478;
+        __context__.SourceCodeLine = 509;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Volume Slider", "user", SESSION) ; 
         
         
@@ -941,9 +1003,9 @@ object AUDIO_ONLY_PRESS_OnRelease_20 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 485;
+        __context__.SourceCodeLine = 516;
         STARTSESSION (  __context__  ) ; 
-        __context__.SourceCodeLine = 489;
+        __context__.SourceCodeLine = 520;
         BUILDHTTPMESSAGE (  __context__ , "touchpanel", "Audio Only", "user", SESSION) ; 
         
         
@@ -954,33 +1016,54 @@ object AUDIO_ONLY_PRESS_OnRelease_20 ( Object __EventInfo__ )
     
 }
 
-object VOLUMEVAL_OnChange_21 ( Object __EventInfo__ )
+object CPHOSTNAME_OnChange_21 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
     try
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
+        CrestronString TEMP;
+        CrestronString BLDG;
+        CrestronString ROOM;
+        CrestronString FLR;
+        TEMP  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 100, this );
+        BLDG  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 32, this );
+        ROOM  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 32, this );
+        FLR  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 2, this );
+        
+        ushort C = 0;
         
         
-        
-    }
-    catch(Exception e) { ObjectCatchHandler(e); }
-    finally { ObjectFinallyHandler( __SignalEventArg__ ); }
-    return this;
-    
-}
-
-object CPHOSTNAME_OnChange_22 ( Object __EventInfo__ )
-
-    { 
-    Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
-    try
-    {
-        SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
-        
-        __context__.SourceCodeLine = 514;
+        __context__.SourceCodeLine = 536;
+        BLDG  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 537;
+        ROOM  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 538;
+        FLR  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 540;
         HOSTNAME  .UpdateValue ( CPHOSTNAME  ) ; 
+        __context__.SourceCodeLine = 541;
+        TEMP  .UpdateValue ( CPHOSTNAME  ) ; 
+        __context__.SourceCodeLine = 543;
+        if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( Functions.Find( " " , CPHOSTNAME ) >= 1 ))  ) ) 
+            { 
+            __context__.SourceCodeLine = 546;
+            BLDG  .UpdateValue ( Functions.Remove ( " " , TEMP )  ) ; 
+            __context__.SourceCodeLine = 547;
+            ROOM  .UpdateValue ( Functions.Remove ( " " , TEMP )  ) ; 
+            __context__.SourceCodeLine = 548;
+            C = (ushort) ( Functions.GetC( ROOM ) ) ; 
+            __context__.SourceCodeLine = 549;
+            FLR  .UpdateValue ( Functions.ItoA (  (int) ( C ) )  ) ; 
+            } 
+        
+        __context__.SourceCodeLine = 552;
+        HOSTBLDG  .UpdateValue ( BLDG  ) ; 
+        __context__.SourceCodeLine = 553;
+        HOSTROOM  .UpdateValue ( ROOM  ) ; 
+        __context__.SourceCodeLine = 554;
+        HOSTFLOOR  .UpdateValue ( FLR  ) ; 
         
         
     }
@@ -990,7 +1073,7 @@ object CPHOSTNAME_OnChange_22 ( Object __EventInfo__ )
     
 }
 
-object CPIP_OnChange_23 ( Object __EventInfo__ )
+object CPIP_OnChange_22 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1001,9 +1084,9 @@ object CPIP_OnChange_23 ( Object __EventInfo__ )
         TRASH  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 16, this );
         
         
-        __context__.SourceCodeLine = 521;
+        __context__.SourceCodeLine = 561;
         TRASH  .UpdateValue ( Functions.Remove ( " " , CPIP )  ) ; 
-        __context__.SourceCodeLine = 522;
+        __context__.SourceCodeLine = 562;
         HOSTIP  .UpdateValue ( CPIP  ) ; 
         
         
@@ -1014,7 +1097,7 @@ object CPIP_OnChange_23 ( Object __EventInfo__ )
     
 }
 
-object CPMACADDR_OnChange_24 ( Object __EventInfo__ )
+object CPMACADDR_OnChange_23 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1027,18 +1110,18 @@ object CPMACADDR_OnChange_24 ( Object __EventInfo__ )
         TEMP  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 32, this );
         
         
-        __context__.SourceCodeLine = 529;
+        __context__.SourceCodeLine = 569;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( Functions.Find( " " , CPMACADDR ) > 0 ))  ) ) 
             { 
-            __context__.SourceCodeLine = 531;
+            __context__.SourceCodeLine = 571;
             TEMP  .UpdateValue ( Functions.Left ( CPMACADDR ,  (int) ( (Functions.Length( CPMACADDR ) - 1) ) )  ) ; 
-            __context__.SourceCodeLine = 532;
+            __context__.SourceCodeLine = 572;
             HOSTMAC  .UpdateValue ( TEMP  ) ; 
             } 
         
         else 
             { 
-            __context__.SourceCodeLine = 536;
+            __context__.SourceCodeLine = 576;
             HOSTMAC  .UpdateValue ( CPMACADDR  ) ; 
             } 
         
@@ -1051,7 +1134,7 @@ object CPMACADDR_OnChange_24 ( Object __EventInfo__ )
     
 }
 
-object SESSIONID_OnChange_25 ( Object __EventInfo__ )
+object SESSIONID_OnChange_24 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1059,7 +1142,7 @@ object SESSIONID_OnChange_25 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 542;
+        __context__.SourceCodeLine = 582;
         SESSION  .UpdateValue ( SESSIONID  ) ; 
         
         
@@ -1070,7 +1153,7 @@ object SESSIONID_OnChange_25 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL1_OnChange_26 ( Object __EventInfo__ )
+object INPUTLABEL1_OnChange_25 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1078,7 +1161,7 @@ object INPUTLABEL1_OnChange_26 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 547;
+        __context__.SourceCodeLine = 587;
         INPUT1  .UpdateValue ( INPUTLABEL1  ) ; 
         
         
@@ -1089,7 +1172,7 @@ object INPUTLABEL1_OnChange_26 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL2_OnChange_27 ( Object __EventInfo__ )
+object INPUTLABEL2_OnChange_26 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1097,7 +1180,7 @@ object INPUTLABEL2_OnChange_27 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 552;
+        __context__.SourceCodeLine = 592;
         INPUT2  .UpdateValue ( INPUTLABEL2  ) ; 
         
         
@@ -1108,7 +1191,7 @@ object INPUTLABEL2_OnChange_27 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL3_OnChange_28 ( Object __EventInfo__ )
+object INPUTLABEL3_OnChange_27 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1116,7 +1199,7 @@ object INPUTLABEL3_OnChange_28 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 556;
+        __context__.SourceCodeLine = 596;
         INPUT3  .UpdateValue ( INPUTLABEL3  ) ; 
         
         
@@ -1127,7 +1210,7 @@ object INPUTLABEL3_OnChange_28 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL4_OnChange_29 ( Object __EventInfo__ )
+object INPUTLABEL4_OnChange_28 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1135,7 +1218,7 @@ object INPUTLABEL4_OnChange_29 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 560;
+        __context__.SourceCodeLine = 600;
         INPUT4  .UpdateValue ( INPUTLABEL4  ) ; 
         
         
@@ -1146,7 +1229,7 @@ object INPUTLABEL4_OnChange_29 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL5_OnChange_30 ( Object __EventInfo__ )
+object INPUTLABEL5_OnChange_29 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1154,7 +1237,7 @@ object INPUTLABEL5_OnChange_30 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 564;
+        __context__.SourceCodeLine = 604;
         INPUT5  .UpdateValue ( INPUTLABEL5  ) ; 
         
         
@@ -1165,7 +1248,7 @@ object INPUTLABEL5_OnChange_30 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL6_OnChange_31 ( Object __EventInfo__ )
+object INPUTLABEL6_OnChange_30 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1173,7 +1256,7 @@ object INPUTLABEL6_OnChange_31 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 568;
+        __context__.SourceCodeLine = 608;
         INPUT6  .UpdateValue ( INPUTLABEL6  ) ; 
         
         
@@ -1184,7 +1267,7 @@ object INPUTLABEL6_OnChange_31 ( Object __EventInfo__ )
     
 }
 
-object INPUTLABEL7_OnChange_32 ( Object __EventInfo__ )
+object INPUTLABEL7_OnChange_31 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1192,7 +1275,7 @@ object INPUTLABEL7_OnChange_32 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 572;
+        __context__.SourceCodeLine = 612;
         INPUT7  .UpdateValue ( INPUTLABEL7  ) ; 
         
         
@@ -1203,7 +1286,7 @@ object INPUTLABEL7_OnChange_32 ( Object __EventInfo__ )
     
 }
 
-object CLIENTCONNECTED_OnPush_33 ( Object __EventInfo__ )
+object CLIENTCONNECTED_OnPush_32 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1213,12 +1296,12 @@ object CLIENTCONNECTED_OnPush_33 ( Object __EventInfo__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 579;
+        __context__.SourceCodeLine = 619;
         STATUS = (short) ( Functions.SocketConnectClient( CLIENT , REPORTINGHOST , (ushort)( REPORTINGHOSTPORT ) , (ushort)( 0 ) ) ) ; 
-        __context__.SourceCodeLine = 582;
+        __context__.SourceCodeLine = 622;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( STATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 583;
+            __context__.SourceCodeLine = 623;
             Print( "Error connecting socket to address {0} on port  {1:d}", REPORTINGHOST , (short)REPORTINGHOSTPORT) ; 
             }
         
@@ -1231,7 +1314,7 @@ object CLIENTCONNECTED_OnPush_33 ( Object __EventInfo__ )
     
 }
 
-object CLIENTCONNECTED_OnRelease_34 ( Object __EventInfo__ )
+object CLIENTCONNECTED_OnRelease_33 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1241,12 +1324,12 @@ object CLIENTCONNECTED_OnRelease_34 ( Object __EventInfo__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 591;
+        __context__.SourceCodeLine = 631;
         STATUS = (short) ( Functions.SocketDisconnectClient( CLIENT ) ) ; 
-        __context__.SourceCodeLine = 593;
+        __context__.SourceCodeLine = 633;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( STATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 594;
+            __context__.SourceCodeLine = 634;
             Print( "Error disconnecting socket to address {0} on port {1:d}", REPORTINGHOST , (short)REPORTINGHOSTPORT) ; 
             }
         
@@ -1259,7 +1342,7 @@ object CLIENTCONNECTED_OnRelease_34 ( Object __EventInfo__ )
     
 }
 
-object SYSTEMREADY_OnPush_35 ( Object __EventInfo__ )
+object SYSTEMREADY_OnPush_34 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -1267,9 +1350,9 @@ object SYSTEMREADY_OnPush_35 ( Object __EventInfo__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
         
-        __context__.SourceCodeLine = 599;
+        __context__.SourceCodeLine = 639;
         _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
-        __context__.SourceCodeLine = 600;
+        __context__.SourceCodeLine = 640;
         BUILDHTTPMESSAGE (  __context__ , "controlProcessor", "System rebooted", "system", "") ; 
         
         
@@ -1280,7 +1363,7 @@ object SYSTEMREADY_OnPush_35 ( Object __EventInfo__ )
     
 }
 
-object CLIENT_OnSocketConnect_36 ( Object __Info__ )
+object CLIENT_OnSocketConnect_35 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -1291,37 +1374,39 @@ object CLIENT_OnSocketConnect_36 ( Object __Info__ )
         short PORTNUMBER = 0;
         
         
-        __context__.SourceCodeLine = 614;
+        __context__.SourceCodeLine = 654;
         Print( "OnConnect: input buffer size is: {0:d}\r\n", (short)Functions.Length( CLIENT.SocketRxBuf )) ; 
-        __context__.SourceCodeLine = 616;
+        __context__.SourceCodeLine = 656;
         LOCALSTATUS = (short) ( Functions.SocketGetRemoteIPAddress( CLIENT , ref REPORTINGHOST ) ) ; 
-        __context__.SourceCodeLine = 617;
+        __context__.SourceCodeLine = 657;
         PORTNUMBER = (short) ( Functions.SocketGetPortNumber( CLIENT ) ) ; 
-        __context__.SourceCodeLine = 619;
+        __context__.SourceCodeLine = 659;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( LOCALSTATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 620;
+            __context__.SourceCodeLine = 660;
             Print( "Error getting remote ip address. {0:d}\r\n", (short)LOCALSTATUS) ; 
             }
         
         else 
             {
-            __context__.SourceCodeLine = 621;
+            __context__.SourceCodeLine = 661;
             if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( PORTNUMBER < 0 ))  ) ) 
                 {
-                __context__.SourceCodeLine = 622;
+                __context__.SourceCodeLine = 662;
                 Print( "Error getting client port number. {0:d}\r\n", (int)REPORTINGHOSTPORT) ; 
                 }
             
             else 
                 {
-                __context__.SourceCodeLine = 624;
+                __context__.SourceCodeLine = 664;
                 Print( "OnConnect: Connected to port {0:d} on address {1}\r\n", (int)REPORTINGHOSTPORT, REPORTINGHOST ) ; 
                 }
             
             }
         
-        __context__.SourceCodeLine = 627;
+        __context__.SourceCodeLine = 667;
+        BUILDHTTPMESSAGE (  __context__ , "controlProcessor", "System active", "system", "") ; 
+        __context__.SourceCodeLine = 670;
         CreateWait ( "RECONNECTTIMER" , RECONNECTTIME , RECONNECTTIMER_Callback ) ;
         
         
@@ -1342,9 +1427,9 @@ public void RECONNECTTIMER_CallbackFn( object stateInfo )
         __LocalWait__.RemoveFromList();
         
             
-            __context__.SourceCodeLine = 629;
+            __context__.SourceCodeLine = 672;
             _CLIENTCONNECTED  .Value = (ushort) ( 0 ) ; 
-            __context__.SourceCodeLine = 630;
+            __context__.SourceCodeLine = 673;
             _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
             
         
@@ -1355,7 +1440,7 @@ public void RECONNECTTIMER_CallbackFn( object stateInfo )
     
 }
 
-object CLIENT_OnSocketDisconnect_37 ( Object __Info__ )
+object CLIENT_OnSocketDisconnect_36 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -1363,22 +1448,24 @@ object CLIENT_OnSocketDisconnect_37 ( Object __Info__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SocketInfo__);
         
-        __context__.SourceCodeLine = 637;
+        __context__.SourceCodeLine = 680;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt (CLIENTCONNECTED  .Value == 0))  ) ) 
             {
-            __context__.SourceCodeLine = 638;
+            __context__.SourceCodeLine = 681;
             Print( "Socket disconnected remotely") ; 
             }
         
         else 
             {
-            __context__.SourceCodeLine = 640;
+            __context__.SourceCodeLine = 683;
             Print( "Local socket disconnect complete.") ; 
             }
         
-        __context__.SourceCodeLine = 641;
+        __context__.SourceCodeLine = 684;
+        _CLIENTCONNECTED  .Value = (ushort) ( 0 ) ; 
+        __context__.SourceCodeLine = 685;
         _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
-        __context__.SourceCodeLine = 643;
+        __context__.SourceCodeLine = 687;
         CancelWait ( "RECONNECTTIMER" ) ; 
         
         
@@ -1389,7 +1476,7 @@ object CLIENT_OnSocketDisconnect_37 ( Object __Info__ )
     
 }
 
-object CLIENT_OnSocketReceive_38 ( Object __Info__ )
+object CLIENT_OnSocketReceive_37 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -1397,16 +1484,16 @@ object CLIENT_OnSocketReceive_38 ( Object __Info__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SocketInfo__);
         
-        __context__.SourceCodeLine = 649;
+        __context__.SourceCodeLine = 693;
         RetimeWait ( (int)RECONNECTTIME, "RECONNECTTIMER" ) ; 
-        __context__.SourceCodeLine = 653;
+        __context__.SourceCodeLine = 697;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( Functions.Length( CLIENT.SocketRxBuf ) < 256 ))  ) ) 
             {
-            __context__.SourceCodeLine = 654;
+            __context__.SourceCodeLine = 698;
             Print( "Rx: {0}", CLIENT .  SocketRxBuf ) ; 
             }
         
-        __context__.SourceCodeLine = 660;
+        __context__.SourceCodeLine = 704;
         Functions.ClearBuffer ( CLIENT .  SocketRxBuf ) ; 
         
         
@@ -1417,7 +1504,7 @@ object CLIENT_OnSocketReceive_38 ( Object __Info__ )
     
 }
 
-object CLIENT_OnSocketStatus_39 ( Object __Info__ )
+object CLIENT_OnSocketStatus_38 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -1427,9 +1514,9 @@ object CLIENT_OnSocketStatus_39 ( Object __Info__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 667;
+        __context__.SourceCodeLine = 711;
         STATUS = (short) ( __SocketInfo__.SocketStatus ) ; 
-        __context__.SourceCodeLine = 668;
+        __context__.SourceCodeLine = 712;
         
             {
             int __SPLS_TMPVAR__SWTCH_1__ = ((int)STATUS);
@@ -1437,97 +1524,97 @@ object CLIENT_OnSocketStatus_39 ( Object __Info__ )
                 { 
                 if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 0) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 672;
+                    __context__.SourceCodeLine = 716;
                     LOG (  __context__ , "SOCKET STATUS: Not Connected") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 1) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 677;
+                    __context__.SourceCodeLine = 721;
                     LOG (  __context__ , "SOCKET STATUS: Waiting for Connection") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 2) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 681;
+                    __context__.SourceCodeLine = 725;
                     LOG (  __context__ , "SOCKET STATUS: Connected") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 3) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 685;
+                    __context__.SourceCodeLine = 729;
                     LOG (  __context__ , "SOCKET STATUS: Connection Failed") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 4) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 690;
+                    __context__.SourceCodeLine = 734;
                     LOG (  __context__ , "SOCKET STATUS: Connection Broken Remotely") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 5) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 695;
+                    __context__.SourceCodeLine = 739;
                     LOG (  __context__ , "SOCKET STATUS: Connection Broken Locally") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 6) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 700;
+                    __context__.SourceCodeLine = 744;
                     LOG (  __context__ , "SOCKET STATUS: Performing DNS Lookup") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 7) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 704;
+                    __context__.SourceCodeLine = 748;
                     LOG (  __context__ , "SOCKET STATUS: DNS Lookup Failed") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 8) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 709;
+                    __context__.SourceCodeLine = 753;
                     LOG (  __context__ , "SOCKET STATUS: DNS Name Resolved") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 1 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 713;
+                    __context__.SourceCodeLine = 757;
                     LOG (  __context__ , "SOCKET STATUS: Client, Server or UDP variable not a TCP/IP or UDP variable.") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 2 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 718;
+                    __context__.SourceCodeLine = 762;
                     LOG (  __context__ , "SOCKET STATUS: Could not create the connection task") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 3 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 723;
+                    __context__.SourceCodeLine = 767;
                     LOG (  __context__ , "SOCKET STATUS: Could not resolve address") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 4 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 728;
+                    __context__.SourceCodeLine = 772;
                     LOG (  __context__ , "SOCKET STATUS: Port not in range of 0-65535.") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 5 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 733;
+                    __context__.SourceCodeLine = 777;
                     LOG (  __context__ , "SOCKET STATUS: No connection has been established") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 6 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 737;
+                    __context__.SourceCodeLine = 781;
                     LOG (  __context__ , "SOCKET STATUS: Not enough room in string parameter to hold IP address.") ; 
                     } 
                 
                 else 
                     { 
-                    __context__.SourceCodeLine = 742;
+                    __context__.SourceCodeLine = 786;
                     LOG (  __context__ , "Socket Status Undefined") ; 
                     } 
                 
@@ -1536,7 +1623,7 @@ object CLIENT_OnSocketStatus_39 ( Object __Info__ )
             }
             
         
-        __context__.SourceCodeLine = 744;
+        __context__.SourceCodeLine = 788;
         ; 
         
         
@@ -1553,45 +1640,45 @@ public override object FunctionMain (  object __obj__ )
     {
         SplusExecutionContext __context__ = SplusFunctionMainStartCode();
         
-        __context__.SourceCodeLine = 762;
+        __context__.SourceCodeLine = 806;
         WaitForInitializationComplete ( ) ; 
-        __context__.SourceCodeLine = 764;
+        __context__.SourceCodeLine = 808;
         REPORTINGHOST  .UpdateValue ( "avreports.byu.edu"  ) ; 
-        __context__.SourceCodeLine = 765;
+        __context__.SourceCodeLine = 809;
         REPORTINGHOSTPORT = (ushort) ( 80 ) ; 
-        __context__.SourceCodeLine = 766;
+        __context__.SourceCodeLine = 810;
         RECONNECTTIME = (ushort) ( 9000 ) ; 
-        __context__.SourceCodeLine = 767;
+        __context__.SourceCodeLine = 811;
         HOSTNAME  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 768;
+        __context__.SourceCodeLine = 812;
         HOSTIP  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 769;
+        __context__.SourceCodeLine = 813;
         HOSTMAC  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 770;
+        __context__.SourceCodeLine = 814;
         HOSTBLDG  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 771;
+        __context__.SourceCodeLine = 815;
         HOSTROOM  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 772;
+        __context__.SourceCodeLine = 816;
         HOSTFLOOR  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 773;
+        __context__.SourceCodeLine = 817;
         HOSTLAT  .UpdateValue ( "40.249719"  ) ; 
-        __context__.SourceCodeLine = 774;
+        __context__.SourceCodeLine = 818;
         HOSTLON  .UpdateValue ( "-111.649265"  ) ; 
-        __context__.SourceCodeLine = 775;
+        __context__.SourceCodeLine = 819;
         SESSION  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 776;
+        __context__.SourceCodeLine = 820;
         INPUT1  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 777;
+        __context__.SourceCodeLine = 821;
         INPUT2  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 778;
+        __context__.SourceCodeLine = 822;
         INPUT3  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 779;
+        __context__.SourceCodeLine = 823;
         INPUT4  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 780;
+        __context__.SourceCodeLine = 824;
         INPUT5  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 781;
+        __context__.SourceCodeLine = 825;
         INPUT6  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 782;
+        __context__.SourceCodeLine = 826;
         INPUT7  .UpdateValue ( ""  ) ; 
         
         
@@ -1604,6 +1691,8 @@ public override object FunctionMain (  object __obj__ )
 
 public override void LogosSplusInitialize()
 {
+    SocketInfo __socketinfo__ = new SocketInfo( 1, this );
+    InitialParametersClass.ResolveHostName = __socketinfo__.ResolveHostName;
     _SplusNVRAM = new SplusNVRAM( this );
     REPORTINGHOST  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 30, this );
     HOSTNAME  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 30, this );
@@ -1696,9 +1785,6 @@ public override void LogosSplusInitialize()
     
     _CLIENTCONNECTED = new Crestron.Logos.SplusObjects.DigitalOutput( _CLIENTCONNECTED__DigitalOutput__, this );
     m_DigitalOutputList.Add( _CLIENTCONNECTED__DigitalOutput__, _CLIENTCONNECTED );
-    
-    VOLUMEVAL = new Crestron.Logos.SplusObjects.AnalogInput( VOLUMEVAL__AnalogSerialInput__, this );
-    m_AnalogInputList.Add( VOLUMEVAL__AnalogSerialInput__, VOLUMEVAL );
     
     CPHOSTNAME = new Crestron.Logos.SplusObjects.StringInput( CPHOSTNAME__AnalogSerialInput__, 32, this );
     m_StringInputList.Add( CPHOSTNAME__AnalogSerialInput__, CPHOSTNAME );
@@ -1798,25 +1884,24 @@ public override void LogosSplusInitialize()
     SELECT_PA_CONTROL.OnDigitalRelease.Add( new InputChangeHandlerWrapper( SELECT_PA_CONTROL_OnRelease_18, false ) );
     PROGRAM_VOLUME_SLIDER_PRESS.OnDigitalRelease.Add( new InputChangeHandlerWrapper( PROGRAM_VOLUME_SLIDER_PRESS_OnRelease_19, false ) );
     AUDIO_ONLY_PRESS.OnDigitalRelease.Add( new InputChangeHandlerWrapper( AUDIO_ONLY_PRESS_OnRelease_20, false ) );
-    VOLUMEVAL.OnAnalogChange.Add( new InputChangeHandlerWrapper( VOLUMEVAL_OnChange_21, false ) );
-    CPHOSTNAME.OnSerialChange.Add( new InputChangeHandlerWrapper( CPHOSTNAME_OnChange_22, false ) );
-    CPIP.OnSerialChange.Add( new InputChangeHandlerWrapper( CPIP_OnChange_23, false ) );
-    CPMACADDR.OnSerialChange.Add( new InputChangeHandlerWrapper( CPMACADDR_OnChange_24, false ) );
-    SESSIONID.OnSerialChange.Add( new InputChangeHandlerWrapper( SESSIONID_OnChange_25, false ) );
-    INPUTLABEL1.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL1_OnChange_26, false ) );
-    INPUTLABEL2.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL2_OnChange_27, false ) );
-    INPUTLABEL3.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL3_OnChange_28, false ) );
-    INPUTLABEL4.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL4_OnChange_29, false ) );
-    INPUTLABEL5.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL5_OnChange_30, false ) );
-    INPUTLABEL6.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL6_OnChange_31, false ) );
-    INPUTLABEL7.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL7_OnChange_32, false ) );
-    CLIENTCONNECTED.OnDigitalPush.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnPush_33, false ) );
-    CLIENTCONNECTED.OnDigitalRelease.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnRelease_34, false ) );
-    SYSTEMREADY.OnDigitalPush.Add( new InputChangeHandlerWrapper( SYSTEMREADY_OnPush_35, false ) );
-    CLIENT.OnSocketConnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketConnect_36, true ) );
-    CLIENT.OnSocketDisconnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketDisconnect_37, false ) );
-    CLIENT.OnSocketReceive.Add( new SocketHandlerWrapper( CLIENT_OnSocketReceive_38, false ) );
-    CLIENT.OnSocketStatus.Add( new SocketHandlerWrapper( CLIENT_OnSocketStatus_39, false ) );
+    CPHOSTNAME.OnSerialChange.Add( new InputChangeHandlerWrapper( CPHOSTNAME_OnChange_21, false ) );
+    CPIP.OnSerialChange.Add( new InputChangeHandlerWrapper( CPIP_OnChange_22, false ) );
+    CPMACADDR.OnSerialChange.Add( new InputChangeHandlerWrapper( CPMACADDR_OnChange_23, false ) );
+    SESSIONID.OnSerialChange.Add( new InputChangeHandlerWrapper( SESSIONID_OnChange_24, false ) );
+    INPUTLABEL1.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL1_OnChange_25, false ) );
+    INPUTLABEL2.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL2_OnChange_26, false ) );
+    INPUTLABEL3.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL3_OnChange_27, false ) );
+    INPUTLABEL4.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL4_OnChange_28, false ) );
+    INPUTLABEL5.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL5_OnChange_29, false ) );
+    INPUTLABEL6.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL6_OnChange_30, false ) );
+    INPUTLABEL7.OnSerialChange.Add( new InputChangeHandlerWrapper( INPUTLABEL7_OnChange_31, false ) );
+    CLIENTCONNECTED.OnDigitalPush.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnPush_32, false ) );
+    CLIENTCONNECTED.OnDigitalRelease.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnRelease_33, false ) );
+    SYSTEMREADY.OnDigitalPush.Add( new InputChangeHandlerWrapper( SYSTEMREADY_OnPush_34, false ) );
+    CLIENT.OnSocketConnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketConnect_35, true ) );
+    CLIENT.OnSocketDisconnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketDisconnect_36, false ) );
+    CLIENT.OnSocketReceive.Add( new SocketHandlerWrapper( CLIENT_OnSocketReceive_37, false ) );
+    CLIENT.OnSocketStatus.Add( new SocketHandlerWrapper( CLIENT_OnSocketStatus_38, false ) );
     
     _SplusNVRAM.PopulateCustomAttributeList( true );
     
@@ -1859,25 +1944,24 @@ const uint PROGRAM_VOLUME_SLIDER_PRESS__DigitalInput__ = 19;
 const uint AUDIO_ONLY_PRESS__DigitalInput__ = 20;
 const uint CLIENTCONNECTED__DigitalInput__ = 21;
 const uint SYSTEMREADY__DigitalInput__ = 22;
-const uint VOLUMEVAL__AnalogSerialInput__ = 0;
-const uint CPHOSTNAME__AnalogSerialInput__ = 1;
-const uint CPIP__AnalogSerialInput__ = 2;
-const uint CPMACADDR__AnalogSerialInput__ = 3;
-const uint DEVBUILDING__AnalogSerialInput__ = 4;
-const uint DEVROOM__AnalogSerialInput__ = 5;
-const uint DEVFLOOR__AnalogSerialInput__ = 6;
-const uint DEVLATITUDE__AnalogSerialInput__ = 7;
-const uint DEVLONGITUDE__AnalogSerialInput__ = 8;
-const uint VOLUMELEVEL__AnalogSerialInput__ = 9;
-const uint SESSIONID__AnalogSerialInput__ = 10;
-const uint INPUTLABEL1__AnalogSerialInput__ = 11;
-const uint INPUTLABEL2__AnalogSerialInput__ = 12;
-const uint INPUTLABEL3__AnalogSerialInput__ = 13;
-const uint INPUTLABEL4__AnalogSerialInput__ = 14;
-const uint INPUTLABEL5__AnalogSerialInput__ = 15;
-const uint INPUTLABEL6__AnalogSerialInput__ = 16;
-const uint INPUTLABEL7__AnalogSerialInput__ = 17;
-const uint CLIENTBUFFER__AnalogSerialInput__ = 18;
+const uint CPHOSTNAME__AnalogSerialInput__ = 0;
+const uint CPIP__AnalogSerialInput__ = 1;
+const uint CPMACADDR__AnalogSerialInput__ = 2;
+const uint DEVBUILDING__AnalogSerialInput__ = 3;
+const uint DEVROOM__AnalogSerialInput__ = 4;
+const uint DEVFLOOR__AnalogSerialInput__ = 5;
+const uint DEVLATITUDE__AnalogSerialInput__ = 6;
+const uint DEVLONGITUDE__AnalogSerialInput__ = 7;
+const uint VOLUMELEVEL__AnalogSerialInput__ = 8;
+const uint SESSIONID__AnalogSerialInput__ = 9;
+const uint INPUTLABEL1__AnalogSerialInput__ = 10;
+const uint INPUTLABEL2__AnalogSerialInput__ = 11;
+const uint INPUTLABEL3__AnalogSerialInput__ = 12;
+const uint INPUTLABEL4__AnalogSerialInput__ = 13;
+const uint INPUTLABEL5__AnalogSerialInput__ = 14;
+const uint INPUTLABEL6__AnalogSerialInput__ = 15;
+const uint INPUTLABEL7__AnalogSerialInput__ = 16;
+const uint CLIENTBUFFER__AnalogSerialInput__ = 17;
 const uint _CLIENTCONNECTED__DigitalOutput__ = 0;
 const uint TODEVBUILDING__AnalogSerialOutput__ = 0;
 const uint TODEVROOM__AnalogSerialOutput__ = 1;

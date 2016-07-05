@@ -1,6 +1,6 @@
 //Module Info
 /*
-	Name: Bradley T Streeter
+	Name: Bradley T Streeter, Dan Clegg
 	Company: Brigham Young University
 */
 
@@ -27,46 +27,35 @@ DIGITAL_OUTPUT Volume_Up,Volume_Down;
 
 //Events-Push-Release-Change
 
-Push Up_Press
-
-	{
+Push Up_Press{
 	Volume_Up = 1;
-	Delay(50);
+	Delay(7);
 	Volume_Up = 0;
 	
-	While (Up_Press)
-		
-		{
+	While (Up_Press){
 		Volume_Up = 1;
-		Delay(25);
+		Delay(7);
 		Volume_Up = 0;
-		Delay(25);
-		}
-
+		Delay(7);
 	}
+}
 
-Push Down_Press
-
-	{
+Push Down_Press{
 	Volume_Down = 1;
-	Delay(50);
+	Delay(7);
 	Volume_Down = 0;
 	
-	While (Down_Press)
-		
-		{
+	While (Down_Press){
 		Volume_Down = 1;
-		Delay(25);
+		Delay(7);
 		Volume_Down = 0;
-		Delay(25);
-		}
-
+		Delay(7);
 	}
+}
 
 //Function Main
 
 Function Main()	//Gets run at startup
-
-	{
+{
 	waitforinitializationcomplete();
-	}
+}
