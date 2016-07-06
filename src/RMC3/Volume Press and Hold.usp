@@ -29,27 +29,27 @@ DIGITAL_OUTPUT Volume_Up,Volume_Down;
 
 Push Up_Press{
 	Volume_Up = 1;
-	Delay(7);
+	Delay(10);
 	Volume_Up = 0;
 	
 	While (Up_Press){
 		Volume_Up = 1;
-		Delay(7);
+		Delay(10);
 		Volume_Up = 0;
-		Delay(7);
+		Delay(10);
 	}
 }
 
 Push Down_Press{
 	Volume_Down = 1;
-	Delay(7);
+	Delay(10);
 	Volume_Down = 0;
 	
 	While (Down_Press){
 		Volume_Down = 1;
-		Delay(7);
+		Delay(10);
 		Volume_Down = 0;
-		Delay(7);
+		Delay(10);
 	}
 }
 
