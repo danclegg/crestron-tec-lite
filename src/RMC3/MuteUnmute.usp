@@ -51,12 +51,16 @@ FUNCTION ResetValues(){
 }
 
 FUNCTION MUTE(){
+	ResetValues();
+	Muted = 1;
 	Mute_On_fb = 1;
 	Current_Volume = 0;
 }
 
-FUNCTION UNMUTE(){
+FUNCTION UNMUTE(){	
+	ResetValues();
 	Mute_Off_fb = 1;
+	Muted = 0;
 	Current_Volume = 0;
 }
 
@@ -66,29 +70,25 @@ FUNCTION UNMUTE(){
   (Uncomment and declare additional event handlers as needed)
 *******************************************************************************************/
 RELEASE Mute_On
-{
-	ResetValues();
-	Muted = 1;
+{	
+	MUTE();
 }
 
 
 RELEASE Mute_Off
 {
-	ResetValues();
-	Muted = 0;
+	UNMUTE();
 }
 
 RELEASE Mute_Toggle
 {
 	if( Muted = 0 )
 	{
-		ResetValues();
-		Muted = 1;
+		MUTE();	
 	}
 	else
 	{
-		ResetValues();
-		Muted = 0;
+		UNMUTE();
 	}
 }
 
