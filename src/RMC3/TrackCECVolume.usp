@@ -40,7 +40,7 @@ ANALOG_OUTPUT _volume;
          For example, in Function Main: myString = "";
 *******************************************************************************************/
 
-INTEGER Current_Volume,Track_Manually,Scale_Factor;
+INTEGER Current_Volume,Track_Manually,Scale_Factor,Goal;
 
 /*******************************************************************************************
   Functions
@@ -90,16 +90,16 @@ RELEASE Volume_Down
 
 RELEASE Slider_Press
 {
-	If (Volume > Current_Volume)
+	If (Goal > Current_Volume)
 	{
-		While (Volume > Current_Volume)
+		While (Goal > Current_Volume)
 		{
         	Current_Volume = Current_Volume + (Scale_Factor);
 		}
 	}
-	ELSE IF (Volume < Current_Volume)
+	ELSE IF (Goal < Current_Volume)
 	{
-		While (Volume < Current_Volume)
+		While (Goal < Current_Volume)
 		{
 			Current_Volume = Current_Volume - (Scale_Factor);
 		}
@@ -108,6 +108,11 @@ RELEASE Slider_Press
 	{
 		//Do Nothing
 	}
+}
+
+CHANGE Volume
+{
+	Goal = Volume;
 }
 
 /*******************************************************************************************
@@ -121,6 +126,7 @@ Function Main()
 	Current_Volume = 0;
 	Track_Manually = 0;
 	Scale_Factor = BIGGESTSIZE / MAXVOLUME;
+	Goal = 0;
 
 	WaitForInitializationComplete();
 }
