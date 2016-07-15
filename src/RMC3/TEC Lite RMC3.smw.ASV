@@ -13257,7 +13257,7 @@ ObjVer=1
 PrH=67
 CF=2
 Cmn1=Sony 4K
-mC=12
+mC=13
 C1=280
 C2=284
 C3=285
@@ -13270,6 +13270,7 @@ C9=321
 C10=322
 C11=323
 C12=324
+C13=327
 ]
 [
 ObjTp=Sm
@@ -14326,6 +14327,29 @@ P10=L,L,H,L,L,L
 P11=L,L,L,H,L,L
 P12=L,L,L,L,H,L
 P13=L,L,L,L,L,H
+]
+[
+ObjTp=Sm
+H=327
+SmC=19
+Nm=Interlock
+ObjVer=1
+PrH=281
+CF=2
+n1I=6
+n1O=4
+Cmn1=Sony Active Source
+mI=6
+I3=233
+I4=1026
+I5=1193
+I6=1194
+mO=4
+tO=4
+O1=1028
+O2=1140
+O3=1141
+O4=1142
 ]
 [
 ObjTp=Sg
