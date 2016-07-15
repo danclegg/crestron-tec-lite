@@ -32,6 +32,8 @@
   InputSigType4=Digital
   InputCue5=SwitchToHDMI4
   InputSigType5=Digital
+  InputCue6=SwitchToComposite1
+  InputSigType6=Digital
   OutputCue1=_clientConnected
   OutputSigType1=Digital
   InputList2Cue1=clientBuffer
@@ -39,8 +41,8 @@
   OutputList2Cue1=Transmit
   OutputList2SigType1=Serial
   ParamCue1=[Reference Name]
-  MinVariableInputs=5
-  MaxVariableInputs=5
+  MinVariableInputs=6
+  MaxVariableInputs=6
   MinVariableInputsList2=1
   MaxVariableInputsList2=1
   MinVariableOutputs=1

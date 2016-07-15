@@ -138,6 +138,7 @@ namespace UserModule_SONY4KIPCONTROL
         Crestron.Logos.SplusObjects.DigitalInput SWITCHTOHDMI2;
         Crestron.Logos.SplusObjects.DigitalInput SWITCHTOHDMI3;
         Crestron.Logos.SplusObjects.DigitalInput SWITCHTOHDMI4;
+        Crestron.Logos.SplusObjects.DigitalInput SWITCHTOCOMPOSITE1;
         Crestron.Logos.SplusObjects.BufferInput CLIENTBUFFER;
         Crestron.Logos.SplusObjects.DigitalOutput _CLIENTCONNECTED;
         Crestron.Logos.SplusObjects.StringOutput TRANSMIT;
@@ -386,7 +387,26 @@ object SWITCHTOHDMI4_OnRelease_3 ( Object __EventInfo__ )
     
 }
 
-object CLIENTCONNECTED_OnPush_4 ( Object __EventInfo__ )
+object SWITCHTOCOMPOSITE1_OnRelease_4 ( Object __EventInfo__ )
+
+    { 
+    Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
+    try
+    {
+        SplusExecutionContext __context__ = SplusThreadStartCode(__SignalEventArg__);
+        
+        __context__.SourceCodeLine = 276;
+        BUILDHTTPMESSAGE (  __context__ , "AAAAAQAAAAEAAABAAw==") ; 
+        
+        
+    }
+    catch(Exception e) { ObjectCatchHandler(e); }
+    finally { ObjectFinallyHandler( __SignalEventArg__ ); }
+    return this;
+    
+}
+
+object CLIENTCONNECTED_OnPush_5 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -396,12 +416,12 @@ object CLIENTCONNECTED_OnPush_4 ( Object __EventInfo__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 276;
+        __context__.SourceCodeLine = 283;
         STATUS = (short) ( Functions.SocketConnectClient( CLIENT , REPORTINGHOST , (ushort)( REPORTINGHOSTPORT ) , (ushort)( 0 ) ) ) ; 
-        __context__.SourceCodeLine = 279;
+        __context__.SourceCodeLine = 286;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( STATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 280;
+            __context__.SourceCodeLine = 287;
             Print( "Error connecting socket to address {0} on port  {1:d}", REPORTINGHOST , (short)REPORTINGHOSTPORT) ; 
             }
         
@@ -414,7 +434,7 @@ object CLIENTCONNECTED_OnPush_4 ( Object __EventInfo__ )
     
 }
 
-object CLIENTCONNECTED_OnRelease_5 ( Object __EventInfo__ )
+object CLIENTCONNECTED_OnRelease_6 ( Object __EventInfo__ )
 
     { 
     Crestron.Logos.SplusObjects.SignalEventArgs __SignalEventArg__ = (Crestron.Logos.SplusObjects.SignalEventArgs)__EventInfo__;
@@ -424,16 +444,16 @@ object CLIENTCONNECTED_OnRelease_5 ( Object __EventInfo__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 288;
+        __context__.SourceCodeLine = 295;
         STATUS = (short) ( Functions.SocketDisconnectClient( CLIENT ) ) ; 
-        __context__.SourceCodeLine = 290;
+        __context__.SourceCodeLine = 297;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( STATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 291;
+            __context__.SourceCodeLine = 298;
             Print( "Error disconnecting socket to address {0} on port {1:d}", REPORTINGHOST , (short)REPORTINGHOSTPORT) ; 
             }
         
-        __context__.SourceCodeLine = 292;
+        __context__.SourceCodeLine = 299;
         _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
         
         
@@ -444,7 +464,7 @@ object CLIENTCONNECTED_OnRelease_5 ( Object __EventInfo__ )
     
 }
 
-object CLIENT_OnSocketConnect_6 ( Object __Info__ )
+object CLIENT_OnSocketConnect_7 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -455,31 +475,31 @@ object CLIENT_OnSocketConnect_6 ( Object __Info__ )
         short PORTNUMBER = 0;
         
         
-        __context__.SourceCodeLine = 304;
+        __context__.SourceCodeLine = 311;
         Print( "OnConnect: input buffer size is: {0:d}\r\n", (short)Functions.Length( CLIENT.SocketRxBuf )) ; 
-        __context__.SourceCodeLine = 306;
+        __context__.SourceCodeLine = 313;
         LOCALSTATUS = (short) ( Functions.SocketGetRemoteIPAddress( CLIENT , ref REPORTINGHOST ) ) ; 
-        __context__.SourceCodeLine = 307;
+        __context__.SourceCodeLine = 314;
         PORTNUMBER = (short) ( Functions.SocketGetPortNumber( CLIENT ) ) ; 
-        __context__.SourceCodeLine = 309;
+        __context__.SourceCodeLine = 316;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( LOCALSTATUS < 0 ))  ) ) 
             {
-            __context__.SourceCodeLine = 310;
+            __context__.SourceCodeLine = 317;
             Print( "Error getting remote ip address. {0:d}\r\n", (short)LOCALSTATUS) ; 
             }
         
         else 
             {
-            __context__.SourceCodeLine = 311;
+            __context__.SourceCodeLine = 318;
             if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( PORTNUMBER < 0 ))  ) ) 
                 {
-                __context__.SourceCodeLine = 312;
+                __context__.SourceCodeLine = 319;
                 Print( "Error getting client port number. {0:d}\r\n", (int)REPORTINGHOSTPORT) ; 
                 }
             
             else 
                 {
-                __context__.SourceCodeLine = 314;
+                __context__.SourceCodeLine = 321;
                 Print( "OnConnect: Connected to port {0:d} on address {1}\r\n", (int)REPORTINGHOSTPORT, REPORTINGHOST ) ; 
                 }
             
@@ -494,7 +514,7 @@ object CLIENT_OnSocketConnect_6 ( Object __Info__ )
     
 }
 
-object CLIENT_OnSocketDisconnect_7 ( Object __Info__ )
+object CLIENT_OnSocketDisconnect_8 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -502,20 +522,20 @@ object CLIENT_OnSocketDisconnect_7 ( Object __Info__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SocketInfo__);
         
-        __context__.SourceCodeLine = 320;
+        __context__.SourceCodeLine = 327;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt (CLIENTCONNECTED  .Value == 0))  ) ) 
             {
-            __context__.SourceCodeLine = 321;
+            __context__.SourceCodeLine = 328;
             Print( "Socket disconnected remotely") ; 
             }
         
         else 
             {
-            __context__.SourceCodeLine = 323;
+            __context__.SourceCodeLine = 330;
             Print( "Local socket disconnect complete.") ; 
             }
         
-        __context__.SourceCodeLine = 325;
+        __context__.SourceCodeLine = 332;
         _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
         
         
@@ -526,7 +546,7 @@ object CLIENT_OnSocketDisconnect_7 ( Object __Info__ )
     
 }
 
-object CLIENT_OnSocketReceive_8 ( Object __Info__ )
+object CLIENT_OnSocketReceive_9 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -534,14 +554,14 @@ object CLIENT_OnSocketReceive_8 ( Object __Info__ )
     {
         SplusExecutionContext __context__ = SplusThreadStartCode(__SocketInfo__);
         
-        __context__.SourceCodeLine = 331;
+        __context__.SourceCodeLine = 338;
         if ( Functions.TestForTrue  ( ( Functions.BoolToInt ( Functions.Length( CLIENT.SocketRxBuf ) < 256 ))  ) ) 
             {
-            __context__.SourceCodeLine = 332;
+            __context__.SourceCodeLine = 339;
             Print( "Rx: {0}", CLIENT .  SocketRxBuf ) ; 
             }
         
-        __context__.SourceCodeLine = 334;
+        __context__.SourceCodeLine = 341;
         Functions.ClearBuffer ( CLIENT .  SocketRxBuf ) ; 
         
         
@@ -552,7 +572,7 @@ object CLIENT_OnSocketReceive_8 ( Object __Info__ )
     
 }
 
-object CLIENT_OnSocketStatus_9 ( Object __Info__ )
+object CLIENT_OnSocketStatus_10 ( Object __Info__ )
 
     { 
     SocketEventInfo __SocketInfo__ = (SocketEventInfo)__Info__;
@@ -562,9 +582,9 @@ object CLIENT_OnSocketStatus_9 ( Object __Info__ )
         short STATUS = 0;
         
         
-        __context__.SourceCodeLine = 341;
+        __context__.SourceCodeLine = 348;
         STATUS = (short) ( __SocketInfo__.SocketStatus ) ; 
-        __context__.SourceCodeLine = 342;
+        __context__.SourceCodeLine = 349;
         
             {
             int __SPLS_TMPVAR__SWTCH_1__ = ((int)STATUS);
@@ -572,97 +592,97 @@ object CLIENT_OnSocketStatus_9 ( Object __Info__ )
                 { 
                 if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 0) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 346;
+                    __context__.SourceCodeLine = 353;
                     LOG (  __context__ , "SOCKET STATUS: Not Connected") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 1) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 351;
+                    __context__.SourceCodeLine = 358;
                     LOG (  __context__ , "SOCKET STATUS: Waiting for Connection") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 2) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 355;
+                    __context__.SourceCodeLine = 362;
                     LOG (  __context__ , "SOCKET STATUS: Connected") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 3) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 359;
+                    __context__.SourceCodeLine = 366;
                     LOG (  __context__ , "SOCKET STATUS: Connection Failed") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 4) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 364;
+                    __context__.SourceCodeLine = 371;
                     LOG (  __context__ , "SOCKET STATUS: Connection Broken Remotely") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 5) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 369;
+                    __context__.SourceCodeLine = 376;
                     LOG (  __context__ , "SOCKET STATUS: Connection Broken Locally") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 6) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 374;
+                    __context__.SourceCodeLine = 381;
                     LOG (  __context__ , "SOCKET STATUS: Performing DNS Lookup") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 7) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 378;
+                    __context__.SourceCodeLine = 385;
                     LOG (  __context__ , "SOCKET STATUS: DNS Lookup Failed") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( 8) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 383;
+                    __context__.SourceCodeLine = 390;
                     LOG (  __context__ , "SOCKET STATUS: DNS Name Resolved") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 1 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 387;
+                    __context__.SourceCodeLine = 394;
                     LOG (  __context__ , "SOCKET STATUS: Client, Server or UDP variable not a TCP/IP or UDP variable.") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 2 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 392;
+                    __context__.SourceCodeLine = 399;
                     LOG (  __context__ , "SOCKET STATUS: Could not create the connection task") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 3 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 397;
+                    __context__.SourceCodeLine = 404;
                     LOG (  __context__ , "SOCKET STATUS: Could not resolve address") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 4 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 402;
+                    __context__.SourceCodeLine = 409;
                     LOG (  __context__ , "SOCKET STATUS: Port not in range of 0-65535.") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 5 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 407;
+                    __context__.SourceCodeLine = 414;
                     LOG (  __context__ , "SOCKET STATUS: No connection has been established") ; 
                     } 
                 
                 else if  ( Functions.TestForTrue  (  ( __SPLS_TMPVAR__SWTCH_1__ == ( Functions.ToLongInteger( -( 6 ) )) ) ) ) 
                     { 
-                    __context__.SourceCodeLine = 411;
+                    __context__.SourceCodeLine = 418;
                     LOG (  __context__ , "SOCKET STATUS: Not enough room in string parameter to hold IP address.") ; 
                     } 
                 
                 else 
                     { 
-                    __context__.SourceCodeLine = 416;
+                    __context__.SourceCodeLine = 423;
                     LOG (  __context__ , "Socket Status Undefined") ; 
                     } 
                 
@@ -671,7 +691,7 @@ object CLIENT_OnSocketStatus_9 ( Object __Info__ )
             }
             
         
-        __context__.SourceCodeLine = 418;
+        __context__.SourceCodeLine = 425;
         ; 
         
         
@@ -688,29 +708,29 @@ public override object FunctionMain (  object __obj__ )
     {
         SplusExecutionContext __context__ = SplusFunctionMainStartCode();
         
-        __context__.SourceCodeLine = 436;
-        WaitForInitializationComplete ( ) ; 
-        __context__.SourceCodeLine = 438;
-        REPORTINGHOST  .UpdateValue ( "api.byu.edu"  ) ; 
-        __context__.SourceCodeLine = 440;
-        REPORTINGHOSTPORT = (ushort) ( 443 ) ; 
-        __context__.SourceCodeLine = 441;
-        INPUT1  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 442;
-        INPUT2  .UpdateValue ( ""  ) ; 
         __context__.SourceCodeLine = 443;
-        INPUT3  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 444;
-        INPUT4  .UpdateValue ( ""  ) ; 
+        WaitForInitializationComplete ( ) ; 
         __context__.SourceCodeLine = 445;
-        INPUT5  .UpdateValue ( ""  ) ; 
-        __context__.SourceCodeLine = 446;
-        INPUT6  .UpdateValue ( ""  ) ; 
+        REPORTINGHOST  .UpdateValue ( "api.byu.edu"  ) ; 
         __context__.SourceCodeLine = 447;
-        INPUT7  .UpdateValue ( ""  ) ; 
+        REPORTINGHOSTPORT = (ushort) ( 443 ) ; 
         __context__.SourceCodeLine = 448;
-        COMMAND  .UpdateValue ( ""  ) ; 
+        INPUT1  .UpdateValue ( ""  ) ; 
         __context__.SourceCodeLine = 449;
+        INPUT2  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 450;
+        INPUT3  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 451;
+        INPUT4  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 452;
+        INPUT5  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 453;
+        INPUT6  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 454;
+        INPUT7  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 455;
+        COMMAND  .UpdateValue ( ""  ) ; 
+        __context__.SourceCodeLine = 456;
         _CLIENTCONNECTED  .Value = (ushort) ( 1 ) ; 
         
         
@@ -723,6 +743,8 @@ public override object FunctionMain (  object __obj__ )
 
 public override void LogosSplusInitialize()
 {
+    SocketInfo __socketinfo__ = new SocketInfo( 1, this );
+    InitialParametersClass.ResolveHostName = __socketinfo__.ResolveHostName;
     _SplusNVRAM = new SplusNVRAM( this );
     REPORTINGHOST  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 60, this );
     REPORTINGHOSTIP  = new CrestronString( Crestron.Logos.SplusObjects.CrestronStringEncoding.eEncodingASCII, 30, this );
@@ -752,6 +774,9 @@ public override void LogosSplusInitialize()
     SWITCHTOHDMI4 = new Crestron.Logos.SplusObjects.DigitalInput( SWITCHTOHDMI4__DigitalInput__, this );
     m_DigitalInputList.Add( SWITCHTOHDMI4__DigitalInput__, SWITCHTOHDMI4 );
     
+    SWITCHTOCOMPOSITE1 = new Crestron.Logos.SplusObjects.DigitalInput( SWITCHTOCOMPOSITE1__DigitalInput__, this );
+    m_DigitalInputList.Add( SWITCHTOCOMPOSITE1__DigitalInput__, SWITCHTOCOMPOSITE1 );
+    
     _CLIENTCONNECTED = new Crestron.Logos.SplusObjects.DigitalOutput( _CLIENTCONNECTED__DigitalOutput__, this );
     m_DigitalOutputList.Add( _CLIENTCONNECTED__DigitalOutput__, _CLIENTCONNECTED );
     
@@ -766,12 +791,13 @@ public override void LogosSplusInitialize()
     SWITCHTOHDMI2.OnDigitalRelease.Add( new InputChangeHandlerWrapper( SWITCHTOHDMI2_OnRelease_1, false ) );
     SWITCHTOHDMI3.OnDigitalRelease.Add( new InputChangeHandlerWrapper( SWITCHTOHDMI3_OnRelease_2, false ) );
     SWITCHTOHDMI4.OnDigitalRelease.Add( new InputChangeHandlerWrapper( SWITCHTOHDMI4_OnRelease_3, false ) );
-    CLIENTCONNECTED.OnDigitalPush.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnPush_4, false ) );
-    CLIENTCONNECTED.OnDigitalRelease.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnRelease_5, false ) );
-    CLIENT.OnSocketConnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketConnect_6, true ) );
-    CLIENT.OnSocketDisconnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketDisconnect_7, false ) );
-    CLIENT.OnSocketReceive.Add( new SocketHandlerWrapper( CLIENT_OnSocketReceive_8, false ) );
-    CLIENT.OnSocketStatus.Add( new SocketHandlerWrapper( CLIENT_OnSocketStatus_9, false ) );
+    SWITCHTOCOMPOSITE1.OnDigitalRelease.Add( new InputChangeHandlerWrapper( SWITCHTOCOMPOSITE1_OnRelease_4, false ) );
+    CLIENTCONNECTED.OnDigitalPush.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnPush_5, false ) );
+    CLIENTCONNECTED.OnDigitalRelease.Add( new InputChangeHandlerWrapper( CLIENTCONNECTED_OnRelease_6, false ) );
+    CLIENT.OnSocketConnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketConnect_7, true ) );
+    CLIENT.OnSocketDisconnect.Add( new SocketHandlerWrapper( CLIENT_OnSocketDisconnect_8, false ) );
+    CLIENT.OnSocketReceive.Add( new SocketHandlerWrapper( CLIENT_OnSocketReceive_9, false ) );
+    CLIENT.OnSocketStatus.Add( new SocketHandlerWrapper( CLIENT_OnSocketStatus_10, false ) );
     
     _SplusNVRAM.PopulateCustomAttributeList( true );
     
@@ -795,6 +821,7 @@ const uint SWITCHTOHDMI1__DigitalInput__ = 1;
 const uint SWITCHTOHDMI2__DigitalInput__ = 2;
 const uint SWITCHTOHDMI3__DigitalInput__ = 3;
 const uint SWITCHTOHDMI4__DigitalInput__ = 4;
+const uint SWITCHTOCOMPOSITE1__DigitalInput__ = 5;
 const uint CLIENTBUFFER__AnalogSerialInput__ = 0;
 const uint _CLIENTCONNECTED__DigitalOutput__ = 0;
 const uint TRANSMIT__AnalogSerialOutput__ = 0;

@@ -142,7 +142,7 @@ Comments: This Crestron Simpl+ Module is to allow Series 2 processors (and later
 /*******************************************************************************************
   DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
 *******************************************************************************************/
-DIGITAL_INPUT clientConnected,SwitchToHDMI1,SwitchToHDMI2,SwitchToHDMI3,SwitchToHDMI4;               
+DIGITAL_INPUT clientConnected,SwitchToHDMI1,SwitchToHDMI2,SwitchToHDMI3,SwitchToHDMI4,SwitchToComposite1;               
 BUFFER_INPUT clientBuffer[100];
 
 DIGITAL_OUTPUT _clientConnected;
@@ -270,6 +270,13 @@ RELEASE SwitchToHDMI4
 {
 	BuildHttpMessage(HDMI4);
 }
+
+RELEASE SwitchToComposite1
+{
+    BuildHttpMessage(Video1);
+
+}
+
 PUSH clientConnected
 {
  	SIGNED_INTEGER status; // variable to capture/store socket status
