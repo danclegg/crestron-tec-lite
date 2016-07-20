@@ -227,18 +227,18 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
 	header6 = "Accept: */*" + NEWLINE;	
-	Print("%s",header1);
-	Print("%s",header1);
-	Print("%s",header2);
-	Print("%s",header3);
-	Print("%s",header4);
-	Print("%s",header5);
-	Print("%s",header6);
-	Print("%s",NEWLINE);
-	Print("%s",innerMsg1);
-	Print("%s",innerMsg2);
-	Print("%s",innerMsg3);
-	Print("%s",innerMsg4);
+	//Print("%s",header1);
+	//Print("%s",header1);
+	//Print("%s",header2);
+	//Print("%s",header3);
+	//Print("%s",header4);
+	//Print("%s",header5);
+	//Print("%s",header6);
+	//Print("%s",NEWLINE);
+	//Print("%s",innerMsg1);
+	//Print("%s",innerMsg2);
+	//Print("%s",innerMsg3);
+	//Print("%s",innerMsg4);
 
 	Send(header1);
 	Send(header2);
@@ -591,22 +591,27 @@ CHANGE InputLabel2
 {
 	INPUT2 = InputLabel2;
 }
+
 CHANGE InputLabel3
 {
 	INPUT3 = InputLabel3;
 }
+
 CHANGE InputLabel4
 {
 	INPUT4 = InputLabel4;
 }
+
 CHANGE InputLabel5
 {
 	INPUT5 = InputLabel5;
 }
+
 CHANGE InputLabel6
 {
 	INPUT6 = InputLabel6;
 }
+
 CHANGE InputLabel7
 {
 	INPUT7 = InputLabel7;

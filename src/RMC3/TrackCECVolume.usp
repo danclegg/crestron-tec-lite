@@ -7,7 +7,7 @@ Dealer Name: Brigham Young University
 System Name: Metrics Proxy
 System Number: 1.0.0
 Programmer: Dan Clegg
-Comments: Forwards Metrics Events
+Comments: Track Volume when dealing with a CEC display
 */
 
 /*******************************************************************************************
@@ -26,11 +26,11 @@ Comments: Forwards Metrics Events
   DIGITAL_INPUT, ANALOG_INPUT, STRING_INPUT, BUFFER_INPUT inputs and DIGITAL_OUTPUT, 
   ANALOG_OUTPUT, STRING_OUTPUT and SERIAL_OUTPUT outputs
 *******************************************************************************************/
-DIGITAL_INPUT Display_Is_CEC,Volume_Up,Volume_Down,Slider_Press;
+DIGITAL_INPUT Display_Is_CEC,Volume_Up,Volume_Down,Slider_Press,Reset_Volume;
 
-ANALOG_INPUT volume;
+ANALOG_INPUT Volume;
 
-DIGITAL_OUTPUT Volume_Up_fb,Volume_Down_fb;
+DIGITAL_OUTPUT Program_Volume_Up,Program_Volume_Down,Display_Volume_Up,Display_Volume_Down;
 
 ANALOG_OUTPUT _volume;
 /*******************************************************************************************
@@ -40,7 +40,7 @@ ANALOG_OUTPUT _volume;
          For example, in Function Main: myString = "";
 *******************************************************************************************/
 
-INTEGER Current_Volume,Track_Manually,Scale_Factor,Goal;
+INTEGER Current_Volume,Track_Manually,Scale_Factor,Goal,Volume_at_slider_press;
 
 /*******************************************************************************************
   Functions
@@ -53,6 +53,25 @@ Function ResetVolume()
 {
     Current_Volume = 0;
 	_Volume = Current_Volume;
+}
+
+Function Up()
+{
+	Program_Volume_Up = 1;
+	Delay(10);
+	Program_Volume_Up = 0;
+	Current_Volume = Current_Volume + (Scale_Factor / 2);
+	_Volume = Current_Volume;
+}
+
+Function Down()
+{
+	Program_Volume_Down = 1;
+	Delay(10);
+	Program_Volume_Down = 0;
+	Current_Volume = Current_Volume - (Scale_Factor / 2);
+	_Volume = Current_Volume;
+
 }
 
 /*******************************************************************************************
@@ -72,6 +91,11 @@ RELEASE Display_Is_CEC
 	Track_Manually = 0;	    
 }
 
+RELEASE Reset_Volume
+{
+	ResetVolume();
+}
+
 RELEASE Volume_Up
 {
 	if(Track_Manually = 1){
@@ -87,27 +111,45 @@ RELEASE Volume_Down
 		_Volume = Current_Volume;
 	}
 }
+ 
+PUSH Slider_Press
+{
+	Volume_at_slider_press = Volume;
+}
 
 RELEASE Slider_Press
 {
-	If (Goal > Current_Volume)
-	{
-		While (Goal > Current_Volume)
+	INTEGER Desired_Volume,steps,x;
+	Desired_Volume = Volume;
+	//PRINT("*************");
+	
+	//PRINT("*************");
+
+	//PRINT("*************");
+	
+	//PRINT("*** Desired_Volume: %d",Desired_Volume);
+	//PRINT("*** Volume at slider press: %d", Volume_at_slider_press);
+     
+	if ( Desired_Volume < Volume_at_slider_press) {
+		steps = (Volume_at_slider_press - Desired_Volume) / Scale_Factor;
+	//	Print("*** Steps Down: %d",steps);
+		for (x = 1 to steps)
 		{
-        	Current_Volume = Current_Volume + (Scale_Factor);
+			Down();
 		}
 	}
-	ELSE IF (Goal < Current_Volume)
-	{
-		While (Goal < Current_Volume)
+	else if ( Desired_Volume > Volume_at_slider_press) {
+		steps = (Desired_Volume - Volume_at_slider_press) / Scale_Factor;
+	//	Print("*** Steps Up: %d",steps);
+		for (x = 1 to steps)
 		{
-			Current_Volume = Current_Volume - (Scale_Factor);
+			Up();
 		}
 	}
-	ELSE
-	{
-		//Do Nothing
+	else {
+		// Do nothing
 	}
+	
 }
 
 CHANGE Volume
