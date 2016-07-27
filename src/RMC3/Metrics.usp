@@ -5,7 +5,7 @@
 /*
 Dealer Name: Brigham Young University
 System Name: Metrics Proxy
-System Number: 1.0.0
+System Number: 1.1.0
 Programmer: Dan Clegg
 Comments: Forwards Metrics Events
 */
@@ -157,7 +157,6 @@ Function storeGlobalVars(string inputString)
 	}
 }
         
-//Function BuildHttpMessage(STRING EVENTHOSTNAME, STRING EVENTIP, STRING EVENTMAC, STRING EVENTBLDG, STRING EVENTROOM, STRING EVENTFLOOR, STRING EVENTLAT, STRING EVENTLON, STRING EVENTACTOR, string EVENTACTION, STRING userOrSystem)
 Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSystem, STRING sessn)
 {
 	SIGNED_INTEGER dst,mNum,yNum,dNum,ContentLength;
@@ -181,7 +180,7 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	STRING CLString[1024];
 	INTEGER spacePosition;
 
-	//hostname = HOSTNAME;
+	hostname = HOSTNAME;
 	description = "";
 	ipAddress = HOSTIP;
 	mac = HOSTMAC;
@@ -193,40 +192,45 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	actor = EVENTACTOR;
 	desc = EVENTACTION;
 	type = userOrSystem;
-	
+
 	spacePosition = Find(" ",HOSTNAME);
 	if(spacePosition = 1){
 		HOSTNAME = RIGHT(HOSTNAME, LEN(HOSTNAME) - 1);
 	}
-    
+
 	mNum = GetMonthNum();
 	yNum = GetYearNum();
 	dNum = GetDateNum();
-	
+
 	dateStr = ITOA(yNum) + "-" + ITOA(mNum) + "-"+ ITOA(dNum);
 	timeStr = Time();
 	dst = GetDST();
-                
+
 	// Change the timestamp depending on DST
 	if(dst = 1) {
 		timestamp = dateStr +"T"+ timeStr + "-0600"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
 	} else if(dst = 2) {
 		timestamp = dateStr +"T"+ timeStr + "-0700"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
 	}
-	
+
 	innerMsg1 = "{\"type\": \"" + type + "\",\"timestamp\": \"" + timestamp +"\",\"eventTime\": \"" + timeStr +"\",\"eventDate\": \"" + dateStr +"\",\"device\": {\"hostname\": \"" + HOSTNAME +"\", \"description\": \"";
 	innerMsg2 = "" + description +"\", \"ipAddress\": \"" + ipAddress +"\", \"macAddress\": \"" + mac +"\"}, \"room\": { \"building\": \"" + building;
 	innerMsg3 = "\", \"roomNumber\": \"" + roomNumber +"\",\"coordinates\": \"" + lat +"," + lon +"\", \"floor\": \"" + flr + "\"";
 	innerMsg4 = "},\"action\": {\"actor\": \"" + actor +"\", \"description\": \"" + desc +"\"}, \"session\": \""+ SESSION + "\"}";
 	ContentLength = Len(innerMsg1) + Len(innerMsg2) + Len(innerMsg3) + Len(innerMsg4);
 	CLString = ITOA(ContentLength);
-
-	header1 = "POST /events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
+    
+	if (EVENTACTION = "System active"){
+		header1 = "POST /events/" + userOrSystem +"/" + hostname + "_SystemActive HTTP/1.1" + NEWLINE;
+	}
+	ELSE {
+		header1 = "POST /events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
+	}
 	header2 = "Host: " + AWS + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
 	header3 = "Connection: keep-alive" + NEWLINE;
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
-	header6 = "Accept: */*" + NEWLINE;	
+	header6 = "Accept: */*" + NEWLINE;
 	//Print("%s",header1);
 	//Print("%s",header1);
 	//Print("%s",header2);
