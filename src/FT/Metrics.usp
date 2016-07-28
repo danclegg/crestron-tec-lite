@@ -5,7 +5,7 @@
 /*
 Dealer Name: Brigham Young University
 System Name: Metrics Proxy
-System Number: 1.0.0
+System Number: 1.1.0
 Programmer: Dan Clegg
 Comments: Forwards Metrics Events
 */
@@ -20,6 +20,7 @@ Comments: Forwards Metrics Events
 #DEFINE_CONSTANT	NEWLINE	"\n"
 #DEFINE_CONSTANT	USER	"user"
 #DEFINE_CONSTANT	SYSTEM	"system"
+#DEFINE_CONSTANT	AWS	"search-byu-oit-av-metrics-ruenjnrqfuhghh7omvtmgcqe7m.us-west-1.es.amazonaws.com"
 #OUTPUT_SHIFT 25
 #DEFAULT_VOLATILE
 #ENABLE_STACK_CHECKING
@@ -28,23 +29,19 @@ Comments: Forwards Metrics Events
   DIGITAL_INPUT, ANALOG_INPUT, STRING_INPUT, BUFFER_INPUT inputs and DIGITAL_OUTPUT, 
   ANALOG_OUTPUT, STRING_OUTPUT and SERIAL_OUTPUT outputs
 *******************************************************************************************/
-DIGITAL_INPUT Audio_Only_Press,Confirm_System_Off,Help_Menu_Press,Home_button,Program_Volume_Down,Program_Volume_Slider_Press,Program_Volume_Up;
-DIGITAL_INPUT Select_AV_Jack,Select_Blank,Select_BluRay,Select_Device_Control_Bluray,Select_Device_Control_IPTV,Select_HDMI_Cable,Select_HDMI_Jack;
-DIGITAL_INPUT Select_IPTV,Select_Local_Input,Select_PA_Control,Select_Remote_Input1,Select_Remote_Input2,Select_VGA_Cable,Startup_press;
+DIGITAL_INPUT Startup_press,Confirm_System_Off,Program_Volume_Down,Program_Volume_Up,Select_AV_Jack,Select_Blank,Select_BluRay,Select_Device_Control_Bluray,Select_Device_Control_IPTV,Select_HDMI_Cable,Select_HDMI_Jack,Select_IPTV,Select_Local_Input,Select_PA_Control,Select_Remote_Input1,Select_Remote_Input2,Select_VGA_Cable,Help_Menu_Press,Home_button,Program_Volume_Slider_Press,Audio_Only_Press;
 
 DIGITAL_INPUT _skip_,_skip_,_skip_,_skip_,_skip_;
  
 DIGITAL_INPUT clientConnected,systemReady;   
 
-STRING_INPUT controllerHostName[32],controllerIp[15],controllerMACAddr[18],devBuilding[8],devRoom[16],devFloor[2],devLatitude[11],devLongitude[11];
-
-ANALOG_INPUT volumeLevel;
+STRING_INPUT cpHostName[32],cpIp[15],cpMACAddr[18],devBuilding[8],devRoom[16],devFloor[2],devLatitude[11],devLongitude[11],volumeLevel[4],sessionId[256],InputLabel1[30],InputLabel2[30],InputLabel3[30],InputLabel4[30],InputLabel5[30],InputLabel6[30],InputLabel7[30];
                                
 BUFFER_INPUT clientBuffer[100];
 
 DIGITAL_OUTPUT _clientConnected;
 
-STRING_OUTPUT  _skip_,_skip_,_skip_,_skip_,toDevBuilding,toDevRoom,toDevFloor,toDevLat,toDevLon,toClientBuffer$;
+STRING_OUTPUT  _skip_,_skip_,_skip_,_skip_,toDevBuilding,toDevRoom,toDevFloor,toDevLat,toDevLon,toClientBuffer$,storeSessionId;
 
 
 /*******************************************************************************************
@@ -76,18 +73,45 @@ STRUCTURE QUEUEDEVENT
 *******************************************************************************************/
 
 SIGNED_INTEGER CONFIGFILEHANDLE;
-STRING REPORTINGHOST[30],HOSTNAME[30],HOSTIP[15],HOSTMAC[18],HOSTBLDG[8],HOSTROOM[16],HOSTFLOOR[2],HOSTLAT[11],HOSTLON[11];
+STRING REPORTINGHOST[30],HOSTNAME[30],HOSTIP[15],HOSTMAC[30],HOSTBLDG[8],HOSTROOM[16],HOSTFLOOR[2],HOSTLAT[11],HOSTLON[11],SESSION[256],INPUT1[30],INPUT2[30],INPUT3[30],INPUT4[30],INPUT5[30],INPUT6[30],INPUT7[30];
 STRING MESSAGE[BIGGESTSIZE];
 INTEGER REPORTINGHOSTPORT,RECONNECTTIME;
 
 /*******************************************************************************************
   Functions -- No Editing
 *******************************************************************************************/
+           
+STRING_FUNCTION Sanitize(string msg)
+{
+	string strippedMessage[1024], char[1];
+	integer i;
+
+	for (i = 1 to len(msg)) // Loop through the string
+	{
+		char = mid(msg, i, 1);
+
+		if ((char != "_") && (char != "/")) // Kill character
+		{
+			strippedMessage = strippedMessage + char;
+		}
+	}
+
+	while (mid(strippedMessage, 1, 1) = " ") // Kill the leading space if it exists
+	{
+    	strippedMessage = right(strippedMessage, len(strippedMessage) - 1);
+	}
+     
+	while (mid(strippedMessage, len(strippedMessage), 1) = " ") // Kill the trailing space if it exists
+	{
+    	strippedMessage = left(strippedMessage, len(strippedMessage) - 1);
+	}
+       
+	RETURN (strippedMessage);
+}
 
 Function Log(string msg)
 {	
 	Print("\n%s",msg);
-
 }
 
 Function Error(string msg)
@@ -97,7 +121,7 @@ Function Error(string msg)
 
 Function Send(string msg)
 {
-	Print("Sending: %s",msg);
+	//Print("Sending: %s",msg);
 	SocketSend(client,msg);	
 }
 
@@ -132,59 +156,14 @@ Function storeGlobalVars(string inputString)
 		HOSTBLDG = Remove("\"",temp);		
 	}
 }
-// type can be default, hostname, ip (add other types as needed
-/*String_function cleanString(string $in, string type)
+        
+Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSystem, STRING sessn)
 {
-	INTEGER intType;
-	STRING cleanedString[1024],temp[1024],LOWERTYPE[8],LINEFEED[4],CARRIAGE[4],TAB[4],SPACE[1],DOLLAR[4],COMMA[4],PERIOD[4],HYPHEN[4],APOSTROPHE[4];
-	LINEFEED = "\x0A";
-	CARRIAGE = "\x0D";
-	PERIOD = "\x2E";
-	LOWERTYPE = LOWER(type);
-	if (LOWERTYPE = "hostname")
-		intType = 1;
-	else if (LOWERTYPE = "ip")
-		intType = 2;
-	else
-		intType = 0;
-		
-	Print("%s - %d",LOWERTYPE,intType);
-			
-	cleanedString = $in;
-	switch(intType)
-	{
-		case(1):
-		{
-			while ( FIND(LINEFEED,cleanedString) > 0)
-			{
-				Print("While LINEFEED");
-				SETSTRING("",FIND(LINEFEED,cleanedString),cleanedString);
-			}
-			while ( FIND(CARRIAGE,cleanedString) > 0)
-			{
-				Print("While CARRIAGE");
-				SETSTRING("",FIND(CARRIAGE,cleanedString),cleanedString);
-			}
-			while ( FIND(PERIOD,cleanedString) > 0)
-			{
-				Print("While PERIOD");
-				SETSTRING("",FIND(PERIOD,cleanedString),cleanedString);
-			}
-		}
-		default:
-		{
-		}	
-	} 	
-	
-	return (cleanedString);
-}*/
-
-Function BuildHttpMessage(STRING EVENTHOSTNAME, STRING EVENTIP, STRING EVENTMAC, STRING EVENTBLDG, STRING EVENTROOM, STRING EVENTFLOOR, STRING EVENTLAT, STRING EVENTLON, STRING EVENTACTOR, string EVENTACTION, STRING userOrSystem)
-{
-	SIGNED_INTEGER offset,mNum,yNum,dNum,ContentLength;
+	SIGNED_INTEGER dst,mNum,yNum,dNum,ContentLength;
     SIGNED_LONG_INTEGER PortNumber;
 	STRING timestamp[24];
-	STRING hostname[30];
+	STRING dateStr[24];
+	STRING timeStr[24];
 	STRING description[256];
 	STRING ipAddress[15];
 	STRING mac[17];
@@ -199,53 +178,71 @@ Function BuildHttpMessage(STRING EVENTHOSTNAME, STRING EVENTIP, STRING EVENTMAC,
 	STRING header1[1024],header2[1024],header3[1024],header4[1024],header5[1024],header6[1024];
 	STRING innerMsg1[1024],innerMsg2[1024],innerMsg3[1024],innerMsg4[1024];
 	STRING CLString[1024];
-	
-	hostname = EVENTHOSTNAME;
+	INTEGER spacePosition;
+
+	hostname = HOSTNAME;
 	description = "";
-	ipAddress = EVENTIP;
-	mac = EVENTMAC;
-	building = EVENTBLDG;
-	roomNumber = EVENTROOM;
-	lat = EVENTLAT;
-	lon = EVENTLON;
-	flr = EVENTFLOOR;
+	ipAddress = HOSTIP;
+	mac = HOSTMAC;
+	building = HOSTBLDG;
+	roomNumber = HOSTROOM;
+	lat = HOSTLAT;
+	lon = HOSTLON;
+	flr = HOSTFLOOR;
 	actor = EVENTACTOR;
 	desc = EVENTACTION;
 	type = userOrSystem;
 
-	offset = GetGmtOffset();
+	spacePosition = Find(" ",HOSTNAME);
+	if(spacePosition = 1){
+		HOSTNAME = RIGHT(HOSTNAME, LEN(HOSTNAME) - 1);
+	}
+
 	mNum = GetMonthNum();
 	yNum = GetYearNum();
 	dNum = GetDateNum();
-	
-    // !!! TODO: Build in the DST offset
-	timestamp = ITOA(yNum) + "-" + ITOA(mNum) + "-"+ ITOA(dNum) +"T"+ Time() +"Z"; // YYYY-MM-DDTHH:mm:ss.SSSZ
 
-	innerMsg1 = "{\"type\": \"" + type + "\",\"timestamp\": \"" + timestamp +"\",\"device\": {\"hostname\": \"" + hostname +"\", \"description\": \"";
+	dateStr = ITOA(yNum) + "-" + ITOA(mNum) + "-"+ ITOA(dNum);
+	timeStr = Time();
+	dst = GetDST();
+
+	// Change the timestamp depending on DST
+	if(dst = 1) {
+		timestamp = dateStr +"T"+ timeStr + "-0600"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
+	} else if(dst = 2) {
+		timestamp = dateStr +"T"+ timeStr + "-0700"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
+	}
+
+	innerMsg1 = "{\"type\": \"" + type + "\",\"timestamp\": \"" + timestamp +"\",\"eventTime\": \"" + timeStr +"\",\"eventDate\": \"" + dateStr +"\",\"device\": {\"hostname\": \"" + HOSTNAME +"\", \"description\": \"";
 	innerMsg2 = "" + description +"\", \"ipAddress\": \"" + ipAddress +"\", \"macAddress\": \"" + mac +"\"}, \"room\": { \"building\": \"" + building;
 	innerMsg3 = "\", \"roomNumber\": \"" + roomNumber +"\",\"coordinates\": \"" + lat +"," + lon +"\", \"floor\": \"" + flr + "\"";
-	innerMsg4 = "},\"actions\": [{\"actor\": \"" + actor +"\", \"description\": \"" + desc +"\"}]}";
+	innerMsg4 = "},\"action\": {\"actor\": \"" + actor +"\", \"description\": \"" + desc +"\"}, \"session\": \""+ SESSION + "\"}";
 	ContentLength = Len(innerMsg1) + Len(innerMsg2) + Len(innerMsg3) + Len(innerMsg4);
 	CLString = ITOA(ContentLength);
-
-	header1 = "POST events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
-	header2 = "Host: " + REPORTINGHOST + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
+    
+	if (EVENTACTION = "System active"){
+		header1 = "POST /events/" + userOrSystem +"/" + hostname + "_SystemActive HTTP/1.1" + NEWLINE;
+	}
+	ELSE {
+		header1 = "POST /events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
+	}
+	header2 = "Host: " + AWS + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
 	header3 = "Connection: keep-alive" + NEWLINE;
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
-	header6 = "Accept: */*" + NEWLINE;	
-	Print("%s",header1);
-	Print("%s",header1);
-	Print("%s",header2);
-	Print("%s",header3);
-	Print("%s",header4);
-	Print("%s",header5);
-	Print("%s",header6);
-	Print("%s",NEWLINE);
-	Print("%s",innerMsg1);
-	Print("%s",innerMsg2);
-	Print("%s",innerMsg3);
-	Print("%s",innerMsg4);
+	header6 = "Accept: */*" + NEWLINE;
+	//Print("%s",header1);
+	//Print("%s",header1);
+	//Print("%s",header2);
+	//Print("%s",header3);
+	//Print("%s",header4);
+	//Print("%s",header5);
+	//Print("%s",header6);
+	//Print("%s",NEWLINE);
+	//Print("%s",innerMsg1);
+	//Print("%s",innerMsg2);
+	//Print("%s",innerMsg3);
+	//Print("%s",innerMsg4);
 
 	Send(header1);
 	Send(header2);
@@ -260,6 +257,80 @@ Function BuildHttpMessage(STRING EVENTHOSTNAME, STRING EVENTIP, STRING EVENTMAC,
 	Send(innerMsg4);
 }
 
+
+Function StartSession()
+{
+	SIGNED_INTEGER mNum,yNum,dNum;
+	INTEGER ticks,ch,counter,period;
+	STRING genSession[256], msg[256],tmpMac[30],leftover[30],tmp[30];
+	tmp = "";
+	leftover = "";
+	ticks = GetTicks();
+	// PATTERN : SERIAL 
+	genSession = ITOA(ticks);
+	tmpMac = HOSTMAC;
+	mNum = GetMonthNum();
+	yNum = GetYearNum();
+	dNum = GetDateNum();	
+	
+	if (len(tmpMac) > 0 && FIND(".",tmpMac) > 0)
+	{
+		ch = GetC(tmpMac);		
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);	
+		leftover = leftover + CHR(ch);
+		period = GetC(tmpMac);
+		
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		period = GetC(tmpMac);
+		
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		period = GetC(tmpMac);
+		
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		period = GetC(tmpMac);
+		
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		period = GetC(tmpMac);
+		
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+		ch = GetC(tmpMac);
+		leftover = leftover + CHR(ch);
+	}
+	tmpMac = leftover;
+	HOSTMAC = tmpMac;	
+	storeSessionId = tmpMac + "-" + genSession + "-" + ITOA(yNum) + ITOA(mNum) + ITOA(dNum);
+	msg = "Session START: " + genSession; 	
+	/* Designated Session Start */	
+	BuildHttpMessage("session",msg,USER,SESSION);
+}
+
+Function EndSession()
+{
+	STRING msg[256];
+	
+	msg = "Session STOP: " + SESSION;
+	
+	storeSessionId = " ";
+
+	/* Designated Session Stop */	
+	BuildHttpMessage("session",msg,USER,SESSION);	
+}
+
+
 Function GetConfigurationValue(string field)
 {
 	SIGNED_INTEGER offset,mNum,yNum,dNum,ContentLength;
@@ -269,8 +340,8 @@ Function GetConfigurationValue(string field)
 	ContentLength = 0;
 	CLString = ITOA(ContentLength);
 
-	header1 = "GET configuration/device/" + HOSTNAME +"?_source_include=" + field+ " HTTP/1.1" + NEWLINE;
-	header2 = "Host: " + REPORTINGHOST + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
+	header1 = "GET /configuration/device/" + HOSTNAME +"?_source_include=" + field+ " HTTP/1.1" + NEWLINE;
+	header2 = "Host: " + AWS + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
 	header3 = "Connection: keep-alive" + NEWLINE;
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
@@ -302,138 +373,155 @@ Function GetConfigurationValue(string field)
 
 RELEASE Startup_press // Start the session, turn system on
 {  
-	
-	/* Designated Session Start */	
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "session", "Session START", USER);
+	StartSession();
 	
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Startup_press", USER);
+	BuildHttpMessage("touchpanel", "Startup",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Startup_press",USER,SESSION);
 }
 
 RELEASE Confirm_System_Off  // End the session, turn system off
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Confirm_System_Off", USER);
+	BuildHttpMessage("touchpanel", "System Off",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Confirm_System_Off",USER,SESSION);
 	
-	/* Designated Session Start */	
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "session", "Session STOP", USER);
+	/* Designated Session Stop */	
+	EndSession();
 }
 
 Release Program_Volume_Down // Volume Down
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Program_Volume_Down", USER);
+	BuildHttpMessage("touchpanel", "Volume Down",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Program_Volume_Down",USER,SESSION);
 }
 
 Release Program_Volume_Up // Volume Down
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Program_Volume_Up", USER);
+	BuildHttpMessage("touchpanel", "Volume Up",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Program_Volume_Up",USER,SESSION);
 }
 
 Release Select_Blank // Blank
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Blank", USER);
+	BuildHttpMessage("touchpanel", "Blank",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_Blank",USER,SESSION);
 }
 
 Release Select_Device_Control_IPTV // IPTV Device Control
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Device_Control_IPTV", USER);
+	BuildHttpMessage("touchpanel", "Device Control - IPTV",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_Device_Control_IPTV",USER,SESSION);
 }
 
 Release Select_HDMI_Cable // HDMI Cable
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_HDMI_Cable", USER);
+	BuildHttpMessage("touchpanel", "HDMI Cable",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_HDMI_Cable",USER,SESSION);
 }
 
 Release Select_HDMI_Jack // HDMI Jack
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_HDMI_Jack", USER);
+	BuildHttpMessage("touchpanel", "HDMI Jack",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_HDMI_Jack",USER,SESSION);
 }
 
 Release Select_IPTV // IPTV Input
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_IPTV", USER);
+	BuildHttpMessage("touchpanel", "IPTV",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_IPTV",USER,SESSION);
 }
 
 Release Select_Local_Input // Local Input
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Local_Input", USER);
+	BuildHttpMessage("touchpanel", "Local Input",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_Local_Input",USER,SESSION);
 }
 
 Release Select_Remote_Input1 // Remote Input 1
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Remote_Input1", USER);
+	BuildHttpMessage("touchpanel", Input6,USER,SESSION);
 }
 
 Release Select_Remote_Input2 // Remote Input 2
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Remote_Input2", USER);
+	BuildHttpMessage("touchpanel", Input7,USER,SESSION);
 }
 
 Release Select_VGA_Cable // VGA Input
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_VGA_Cable", USER);
+	BuildHttpMessage("touchpanel", "VGA Cable",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_VGA_Cable",USER,SESSION);
 }
 
 Release Help_Menu_Press // Help
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Help_Menu_Press", USER);
+	BuildHttpMessage("touchpanel", "Help Menu",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Help_Menu_Press",USER,SESSION);
 }
 
 Release Home_button // Home
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Home_button", USER);
+	BuildHttpMessage("touchpanel", "Home Button",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Home_button",USER,SESSION);
 }
 
 Release Select_AV_Jack // AV Jack Input
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_AV_Jack", USER);
+	BuildHttpMessage("touchpanel", "AV Jack",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_AV_Jack",USER,SESSION);
 }
 
 Release Select_BluRay // Blu-ray Input
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Blu-Ray", USER);
+	BuildHttpMessage("touchpanel", "Blu-ray",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_BluRay",USER,SESSION);
 }
 
 Release Select_Device_Control_Bluray // Device Control Blu-ray
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_Device_Control_Blu-Ray", USER);
+	BuildHttpMessage("touchpanel", "Device Control - Blu-ray",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_Device_Control_BluRay",USER,SESSION);
 }
 
 Release Select_PA_Control // PA Control
 {
 	/*User Event*/
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Select_PA_Control", USER);
+	BuildHttpMessage("touchpanel", "PA Control",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Select_PA_Control",USER,SESSION);
 }
 
 Release Program_Volume_Slider_Press // Slider volume control
 {
 	/* User Event */
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Program_Volume_Slider_Press", USER);
+	BuildHttpMessage("touchpanel", "Volume Slider",USER,SESSION);
+	//BuildHttpMessage("touchpanel", "Program_Volume_Slider_Press",USER,SESSION);
 }
 
 Release Audio_Only_Press // Audio Only button on init screen
 {
-	/* Designated Session Start */	
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "session", "Session START", USER);
+	/* Designated Session Start */
+	StartSession();
 
 	/* User Event */
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "touchpanel", "Audio_Only_Press", USER);
+	//BuildHttpMessage("touchpanel", "Audio_Only_Press",USER,SESSION);
+	BuildHttpMessage("touchpanel", "Audio Only",USER,SESSION);
 }
 
 
@@ -445,39 +533,92 @@ Release Audio_Only_Press // Audio Only button on init screen
 
 // !!!!!!!! SYSTEM SETUP EVENTS -- NO EDITING
 // If system gets hostname, set it in the global var
-CHANGE controllerHostName
+CHANGE cpHostName
+{
+	STRING temp[100],bldg[32],room[32],flr[2];
+	INTEGER c;
+	bldg = "";
+	room = "";
+	flr = "";	
+
+	HOSTNAME = cpHostName;
+	temp = cpHostName;
+
+	if(FIND(" ",cpHostName) >= 1)
+	{
+	//	temp = cpHostName;
+		bldg = REMOVE(" ",temp); // remove preceding space if there
+		room = REMOVE(" ",temp);
+		c = GETC(room);
+		flr = ITOA(c);
+	}
+
+	HOSTBLDG = bldg;
+	HOSTROOM = room;
+	HOSTFLOOR = flr;	
+}
+
+// If system gets IP, set it in the global var
+CHANGE cpIp
 {
 	STRING trash[16];
-	if(FIND(" ",controllerHostName) <= 1)
-	{
-		trash = REMOVE(" ",controllerHostName); // remove preceding space if there
-	}
-	HOSTNAME = controllerHostName;
+	trash = REMOVE(" ",cpIp);
+	HOSTIP = cpIp;
 }
 
 // If system gets IP, set it in the global var
-CHANGE controllerIp
-{
-	STRING trash[16],temp[16],final[16];
-	trash = REMOVE(" ",controllerIp); //Beginning Slash
-	temp = controllerIp;
-	final = REMOVE(" ",temp); //Trailing Slash
-	HOSTIP = final;
-}
-
-// If system gets IP, set it in the global var
-CHANGE controllerMACAddr
+CHANGE cpMACAddr
 {
 	STRING trash[32],temp[32];
-	if (FIND(" ",controllerMACAddr) > 0)
+	if (FIND(" ",cpMACAddr) > 0)
 	{
-		temp = LEFT(controllerMACAddr, LEN(controllerMACAddr) - 1);
+		temp = LEFT(cpMACAddr, LEN(cpMACAddr) - 1);
 		HOSTMAC = temp;
 	}
 	else
 	{
-		HOSTMAC = controllerMACAddr;
+		HOSTMAC = cpMACAddr;
 	}
+}
+// Generate/store SessionID
+CHANGE sessionId
+{
+	SESSION = sessionId;
+}
+
+CHANGE InputLabel1 
+{
+	INPUT1 = InputLabel1;
+}
+
+CHANGE InputLabel2
+{
+	INPUT2 = InputLabel2;
+}
+
+CHANGE InputLabel3
+{
+	INPUT3 = InputLabel3;
+}
+
+CHANGE InputLabel4
+{
+	INPUT4 = InputLabel4;
+}
+
+CHANGE InputLabel5
+{
+	INPUT5 = InputLabel5;
+}
+
+CHANGE InputLabel6
+{
+	INPUT6 = InputLabel6;
+}
+
+CHANGE InputLabel7
+{
+	INPUT7 = InputLabel7;
 }
 
 // Start a socket session to handle whether a push is active or not 
@@ -505,7 +646,8 @@ RELEASE clientConnected
 PUSH systemReady
 {
 	_clientConnected = 1;
-	BuildHttpMessage(HOSTNAME, HOSTIP, HOSTMAC, HOSTBLDG, HOSTROOM, HOSTFLOOR, HOSTLAT, HOSTLON, "controlProcessor", "System rebooted", SYSTEM);
+	BuildHttpMessage("controlProcessor", "System rebooted",SYSTEM,"");
+	
 }
 
 // The SOCKETCONNECT event is called when a socket connection is completed on a TCP_CLIENT or  TCP_SERVER variable.
@@ -530,6 +672,9 @@ THREADSAFE SOCKETCONNECT client
     else
 		Print("OnConnect: Connected to port %ld on address %s\n", REPORTINGHOSTPORT, REPORTINGHOST);
 	
+	// Consider doing a document overwrite
+	BuildHttpMessage("controlProcessor", "System active",SYSTEM,"");
+
 	// Starts timer to force reconnect of stale session
 	WAIT (RECONNECTTIME, ReconnectTimer)
 	{
@@ -545,6 +690,7 @@ SOCKETDISCONNECT client
 		Print("Socket disconnected remotely");
 	else
 		Print("Local socket disconnect complete.");
+	_clientConnected = 0;
 	_clientConnected = 1;
 	
 	CancelWait(ReconnectTimer);
@@ -576,16 +722,16 @@ SOCKETSTATUS client
 	{
 		case(0):
 		{
-			Log("SOCKET STATUS: Not Connected");
+			//Log("SOCKET STATUS: Not Connected");
 			//_clientConnected = 0;
 		}
 		case(1):
 		{
-			Log("SOCKET STATUS: Waiting for Connection");
+			//Log("SOCKET STATUS: Waiting for Connection");
 		}
 		case(2):
 		{
-			Log("SOCKET STATUS: Connected");
+			//Log("SOCKET STATUS: Connected");
 		}
 		case(3):
 		{
@@ -594,17 +740,17 @@ SOCKETSTATUS client
 		}
 		case(4):
 		{
-			Log("SOCKET STATUS: Connection Broken Remotely");
+			//Log("SOCKET STATUS: Connection Broken Remotely");
 			//_clientConnected = 0;
 		}
 		case(5):
 		{
-			Log("SOCKET STATUS: Connection Broken Locally");
+			//Log("SOCKET STATUS: Connection Broken Locally");
 			//_clientConnected = 0;
 		}
 		case(6):
 		{
-			Log("SOCKET STATUS: Performing DNS Lookup");
+			//Log("SOCKET STATUS: Performing DNS Lookup");
 		}
 		case(7):
 		{
@@ -613,7 +759,7 @@ SOCKETSTATUS client
 		}
 		case(8):
 		{
-			Log("SOCKET STATUS: DNS Name Resolved");
+			//Log("SOCKET STATUS: DNS Name Resolved");
 		}
 		case(-1):
 		{
@@ -637,7 +783,7 @@ SOCKETSTATUS client
 		}
 		case(-5):
 		{
-			Log("SOCKET STATUS: No connection has been established");
+			//Log("SOCKET STATUS: No connection has been established");
 		}
 		case(-6):
 		{
@@ -646,7 +792,7 @@ SOCKETSTATUS client
 		}
 		default:
 		{
-			Log("Socket Status Undefined");
+			//Log("Socket Status Undefined");
 		}
 	};
 }
@@ -668,9 +814,8 @@ Function Main()
     //   runs and propagates the values to them.
     WaitForInitializationComplete();
 
-	//REPORTINGHOST = "avreports.byu.edu"; //TMPC Can't do DNS Lookup
-	REPORTINGHOST = "10.5.34.215";
-	REPORTINGHOSTPORT = 9200;
+	REPORTINGHOST = "avreports.byu.edu";
+	REPORTINGHOSTPORT = 80;
 	RECONNECTTIME = 9000; // Set reconnect timer for 90 seconds.
 	HOSTNAME = "";
 	HOSTIP = "";
@@ -680,6 +825,14 @@ Function Main()
 	HOSTFLOOR = "";
 	HOSTLAT = "40.249719";
 	HOSTLON = "-111.649265";
+	SESSION = "";
+	INPUT1 = "";
+	INPUT2 = "";
+	INPUT3 = "";
+	INPUT4 = "";
+	INPUT5 = "";
+	INPUT6 = "";
+	INPUT7 = "";
     //GetConfigurationValue("room");    
 	// !!!!!!!!!! TODO: Use Configuration File to store Event Host Information
 	/*

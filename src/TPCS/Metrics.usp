@@ -5,7 +5,7 @@
 /*
 Dealer Name: Brigham Young University
 System Name: Metrics Proxy
-System Number: 1.0.0
+System Number: 1.1.0
 Programmer: Dan Clegg
 Comments: Forwards Metrics Events
 */
@@ -20,6 +20,7 @@ Comments: Forwards Metrics Events
 #DEFINE_CONSTANT	NEWLINE	"\n"
 #DEFINE_CONSTANT	USER	"user"
 #DEFINE_CONSTANT	SYSTEM	"system"
+#DEFINE_CONSTANT	AWS	"search-byu-oit-av-metrics-ruenjnrqfuhghh7omvtmgcqe7m.us-west-1.es.amazonaws.com"
 #OUTPUT_SHIFT 25
 #DEFAULT_VOLATILE
 #ENABLE_STACK_CHECKING
@@ -34,7 +35,7 @@ DIGITAL_INPUT _skip_,_skip_,_skip_,_skip_,_skip_;
  
 DIGITAL_INPUT clientConnected,systemReady;   
 
-STRING_INPUT dmpsHostName[32],dmpsIp[15],dmpsMACAddr[18],devBuilding[8],devRoom[16],devFloor[2],devLatitude[11],devLongitude[11],volumeLevel[4],sessionId[256],InputLabel1[30],InputLabel2[30],InputLabel3[30],InputLabel4[30],InputLabel5[30],InputLabel6[30],InputLabel7[30];
+STRING_INPUT cpHostName[32],cpIp[15],cpMACAddr[18],devBuilding[8],devRoom[16],devFloor[2],devLatitude[11],devLongitude[11],volumeLevel[4],sessionId[256],InputLabel1[30],InputLabel2[30],InputLabel3[30],InputLabel4[30],InputLabel5[30],InputLabel6[30],InputLabel7[30];
                                
 BUFFER_INPUT clientBuffer[100];
 
@@ -79,11 +80,38 @@ INTEGER REPORTINGHOSTPORT,RECONNECTTIME;
 /*******************************************************************************************
   Functions -- No Editing
 *******************************************************************************************/
+           
+STRING_FUNCTION Sanitize(string msg)
+{
+	string strippedMessage[1024], char[1];
+	integer i;
+
+	for (i = 1 to len(msg)) // Loop through the string
+	{
+		char = mid(msg, i, 1);
+
+		if ((char != "_") && (char != "/")) // Kill character
+		{
+			strippedMessage = strippedMessage + char;
+		}
+	}
+
+	while (mid(strippedMessage, 1, 1) = " ") // Kill the leading space if it exists
+	{
+    	strippedMessage = right(strippedMessage, len(strippedMessage) - 1);
+	}
+     
+	while (mid(strippedMessage, len(strippedMessage), 1) = " ") // Kill the trailing space if it exists
+	{
+    	strippedMessage = left(strippedMessage, len(strippedMessage) - 1);
+	}
+       
+	RETURN (strippedMessage);
+}
 
 Function Log(string msg)
 {	
 	Print("\n%s",msg);
-
 }
 
 Function Error(string msg)
@@ -93,7 +121,7 @@ Function Error(string msg)
 
 Function Send(string msg)
 {
-	Print("Sending: %s",msg);
+	//Print("Sending: %s",msg);
 	SocketSend(client,msg);	
 }
 
@@ -129,10 +157,9 @@ Function storeGlobalVars(string inputString)
 	}
 }
         
-//Function BuildHttpMessage(STRING EVENTHOSTNAME, STRING EVENTIP, STRING EVENTMAC, STRING EVENTBLDG, STRING EVENTROOM, STRING EVENTFLOOR, STRING EVENTLAT, STRING EVENTLON, STRING EVENTACTOR, string EVENTACTION, STRING userOrSystem)
 Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSystem, STRING sessn)
 {
-	SIGNED_INTEGER offset,mNum,yNum,dNum,ContentLength;
+	SIGNED_INTEGER dst,mNum,yNum,dNum,ContentLength;
     SIGNED_LONG_INTEGER PortNumber;
 	STRING timestamp[24];
 	STRING dateStr[24];
@@ -152,8 +179,8 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	STRING innerMsg1[1024],innerMsg2[1024],innerMsg3[1024],innerMsg4[1024];
 	STRING CLString[1024];
 	INTEGER spacePosition;
-	
-	//hostname = HOSTNAME;
+
+	hostname = HOSTNAME;
 	description = "";
 	ipAddress = HOSTIP;
 	mac = HOSTMAC;
@@ -165,21 +192,26 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	actor = EVENTACTOR;
 	desc = EVENTACTION;
 	type = userOrSystem;
-	
+
 	spacePosition = Find(" ",HOSTNAME);
 	if(spacePosition = 1){
 		HOSTNAME = RIGHT(HOSTNAME, LEN(HOSTNAME) - 1);
 	}
 
-	offset = GetGmtOffset();
 	mNum = GetMonthNum();
 	yNum = GetYearNum();
 	dNum = GetDateNum();
-	
+
 	dateStr = ITOA(yNum) + "-" + ITOA(mNum) + "-"+ ITOA(dNum);
 	timeStr = Time();
-	
-	timestamp = dateStr +"T"+ timeStr +"Z"; // YYYY-MM-DDTHH:mm:ss.SSSZ
+	dst = GetDST();
+
+	// Change the timestamp depending on DST
+	if(dst = 1) {
+		timestamp = dateStr +"T"+ timeStr + "-0600"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
+	} else if(dst = 2) {
+		timestamp = dateStr +"T"+ timeStr + "-0700"; // YYYY-MM-DDTHH:mm:ss.SSS-0000
+	}
 
 	innerMsg1 = "{\"type\": \"" + type + "\",\"timestamp\": \"" + timestamp +"\",\"eventTime\": \"" + timeStr +"\",\"eventDate\": \"" + dateStr +"\",\"device\": {\"hostname\": \"" + HOSTNAME +"\", \"description\": \"";
 	innerMsg2 = "" + description +"\", \"ipAddress\": \"" + ipAddress +"\", \"macAddress\": \"" + mac +"\"}, \"room\": { \"building\": \"" + building;
@@ -187,25 +219,30 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	innerMsg4 = "},\"action\": {\"actor\": \"" + actor +"\", \"description\": \"" + desc +"\"}, \"session\": \""+ SESSION + "\"}";
 	ContentLength = Len(innerMsg1) + Len(innerMsg2) + Len(innerMsg3) + Len(innerMsg4);
 	CLString = ITOA(ContentLength);
-
-	header1 = "POST events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
-	header2 = "Host: " + REPORTINGHOST + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
+    
+	if (EVENTACTION = "System active"){
+		header1 = "POST /events/" + userOrSystem +"/" + hostname + "_SystemActive HTTP/1.1" + NEWLINE;
+	}
+	ELSE {
+		header1 = "POST /events/" + userOrSystem +"/ HTTP/1.1" + NEWLINE;
+	}
+	header2 = "Host: " + AWS + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
 	header3 = "Connection: keep-alive" + NEWLINE;
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
-	header6 = "Accept: */*" + NEWLINE;	
-	Print("%s",header1);
-	Print("%s",header1);
-	Print("%s",header2);
-	Print("%s",header3);
-	Print("%s",header4);
-	Print("%s",header5);
-	Print("%s",header6);
-	Print("%s",NEWLINE);
-	Print("%s",innerMsg1);
-	Print("%s",innerMsg2);
-	Print("%s",innerMsg3);
-	Print("%s",innerMsg4);
+	header6 = "Accept: */*" + NEWLINE;
+	//Print("%s",header1);
+	//Print("%s",header1);
+	//Print("%s",header2);
+	//Print("%s",header3);
+	//Print("%s",header4);
+	//Print("%s",header5);
+	//Print("%s",header6);
+	//Print("%s",NEWLINE);
+	//Print("%s",innerMsg1);
+	//Print("%s",innerMsg2);
+	//Print("%s",innerMsg3);
+	//Print("%s",innerMsg4);
 
 	Send(header1);
 	Send(header2);
@@ -293,6 +330,7 @@ Function EndSession()
 	BuildHttpMessage("session",msg,USER,SESSION);	
 }
 
+
 Function GetConfigurationValue(string field)
 {
 	SIGNED_INTEGER offset,mNum,yNum,dNum,ContentLength;
@@ -302,8 +340,8 @@ Function GetConfigurationValue(string field)
 	ContentLength = 0;
 	CLString = ITOA(ContentLength);
 
-	header1 = "GET configuration/device/" + HOSTNAME +"?_source_include=" + field+ " HTTP/1.1" + NEWLINE;
-	header2 = "Host: " + REPORTINGHOST + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
+	header1 = "GET /configuration/device/" + HOSTNAME +"?_source_include=" + field+ " HTTP/1.1" + NEWLINE;
+	header2 = "Host: " + AWS + ":" + ITOA(REPORTINGHOSTPORT) + NEWLINE;
 	header3 = "Connection: keep-alive" + NEWLINE;
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
@@ -495,36 +533,51 @@ Release Audio_Only_Press // Audio Only button on init screen
 
 // !!!!!!!! SYSTEM SETUP EVENTS -- NO EDITING
 // If system gets hostname, set it in the global var
-CHANGE dmpsHostName
+CHANGE cpHostName
 {
-//	STRING trash[16];
-//	if(FIND(" ",dmpsHostName) <= 1)
-//	{
-//		trash = REMOVE(" ",dmpsHostName); // remove preceding space if there
-//	}
-	HOSTNAME = dmpsHostName;
+	STRING temp[100],bldg[32],room[32],flr[2];
+	INTEGER c;
+	bldg = "";
+	room = "";
+	flr = "";	
+
+	HOSTNAME = cpHostName;
+	temp = cpHostName;
+
+	if(FIND(" ",cpHostName) >= 1)
+	{
+	//	temp = cpHostName;
+		bldg = REMOVE(" ",temp); // remove preceding space if there
+		room = REMOVE(" ",temp);
+		c = GETC(room);
+		flr = ITOA(c);
+	}
+
+	HOSTBLDG = bldg;
+	HOSTROOM = room;
+	HOSTFLOOR = flr;	
 }
 
 // If system gets IP, set it in the global var
-CHANGE dmpsIp
+CHANGE cpIp
 {
 	STRING trash[16];
-	trash = REMOVE(" ",dmpsIp);
-	HOSTIP = dmpsIp;
+	trash = REMOVE(" ",cpIp);
+	HOSTIP = cpIp;
 }
 
 // If system gets IP, set it in the global var
-CHANGE dmpsMACAddr
+CHANGE cpMACAddr
 {
 	STRING trash[32],temp[32];
-	if (FIND(" ",dmpsMACAddr) > 0)
+	if (FIND(" ",cpMACAddr) > 0)
 	{
-		temp = LEFT(dmpsMACAddr, LEN(dmpsMACAddr) - 1);
+		temp = LEFT(cpMACAddr, LEN(cpMACAddr) - 1);
 		HOSTMAC = temp;
 	}
 	else
 	{
-		HOSTMAC = dmpsMACAddr;
+		HOSTMAC = cpMACAddr;
 	}
 }
 // Generate/store SessionID
@@ -542,22 +595,27 @@ CHANGE InputLabel2
 {
 	INPUT2 = InputLabel2;
 }
+
 CHANGE InputLabel3
 {
 	INPUT3 = InputLabel3;
 }
+
 CHANGE InputLabel4
 {
 	INPUT4 = InputLabel4;
 }
+
 CHANGE InputLabel5
 {
 	INPUT5 = InputLabel5;
 }
+
 CHANGE InputLabel6
 {
 	INPUT6 = InputLabel6;
 }
+
 CHANGE InputLabel7
 {
 	INPUT7 = InputLabel7;
@@ -614,6 +672,9 @@ THREADSAFE SOCKETCONNECT client
     else
 		Print("OnConnect: Connected to port %ld on address %s\n", REPORTINGHOSTPORT, REPORTINGHOST);
 	
+	// Consider doing a document overwrite
+	BuildHttpMessage("controlProcessor", "System active",SYSTEM,"");
+
 	// Starts timer to force reconnect of stale session
 	WAIT (RECONNECTTIME, ReconnectTimer)
 	{
@@ -629,6 +690,7 @@ SOCKETDISCONNECT client
 		Print("Socket disconnected remotely");
 	else
 		Print("Local socket disconnect complete.");
+	_clientConnected = 0;
 	_clientConnected = 1;
 	
 	CancelWait(ReconnectTimer);
@@ -660,16 +722,16 @@ SOCKETSTATUS client
 	{
 		case(0):
 		{
-			Log("SOCKET STATUS: Not Connected");
+			//Log("SOCKET STATUS: Not Connected");
 			//_clientConnected = 0;
 		}
 		case(1):
 		{
-			Log("SOCKET STATUS: Waiting for Connection");
+			//Log("SOCKET STATUS: Waiting for Connection");
 		}
 		case(2):
 		{
-			Log("SOCKET STATUS: Connected");
+			//Log("SOCKET STATUS: Connected");
 		}
 		case(3):
 		{
@@ -678,17 +740,17 @@ SOCKETSTATUS client
 		}
 		case(4):
 		{
-			Log("SOCKET STATUS: Connection Broken Remotely");
+			//Log("SOCKET STATUS: Connection Broken Remotely");
 			//_clientConnected = 0;
 		}
 		case(5):
 		{
-			Log("SOCKET STATUS: Connection Broken Locally");
+			//Log("SOCKET STATUS: Connection Broken Locally");
 			//_clientConnected = 0;
 		}
 		case(6):
 		{
-			Log("SOCKET STATUS: Performing DNS Lookup");
+			//Log("SOCKET STATUS: Performing DNS Lookup");
 		}
 		case(7):
 		{
@@ -697,7 +759,7 @@ SOCKETSTATUS client
 		}
 		case(8):
 		{
-			Log("SOCKET STATUS: DNS Name Resolved");
+			//Log("SOCKET STATUS: DNS Name Resolved");
 		}
 		case(-1):
 		{
@@ -721,7 +783,7 @@ SOCKETSTATUS client
 		}
 		case(-5):
 		{
-			Log("SOCKET STATUS: No connection has been established");
+			//Log("SOCKET STATUS: No connection has been established");
 		}
 		case(-6):
 		{
@@ -730,7 +792,7 @@ SOCKETSTATUS client
 		}
 		default:
 		{
-			Log("Socket Status Undefined");
+			//Log("Socket Status Undefined");
 		}
 	};
 }
@@ -753,7 +815,7 @@ Function Main()
     WaitForInitializationComplete();
 
 	REPORTINGHOST = "avreports.byu.edu";
-	REPORTINGHOSTPORT = 9200;
+	REPORTINGHOSTPORT = 80;
 	RECONNECTTIME = 9000; // Set reconnect timer for 90 seconds.
 	HOSTNAME = "";
 	HOSTIP = "";

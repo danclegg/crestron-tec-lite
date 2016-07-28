@@ -722,16 +722,16 @@ SOCKETSTATUS client
 	{
 		case(0):
 		{
-			Log("SOCKET STATUS: Not Connected");
+			//Log("SOCKET STATUS: Not Connected");
 			//_clientConnected = 0;
 		}
 		case(1):
 		{
-			Log("SOCKET STATUS: Waiting for Connection");
+			//Log("SOCKET STATUS: Waiting for Connection");
 		}
 		case(2):
 		{
-			Log("SOCKET STATUS: Connected");
+			//Log("SOCKET STATUS: Connected");
 		}
 		case(3):
 		{
@@ -740,17 +740,17 @@ SOCKETSTATUS client
 		}
 		case(4):
 		{
-			Log("SOCKET STATUS: Connection Broken Remotely");
+			//Log("SOCKET STATUS: Connection Broken Remotely");
 			//_clientConnected = 0;
 		}
 		case(5):
 		{
-			Log("SOCKET STATUS: Connection Broken Locally");
+			//Log("SOCKET STATUS: Connection Broken Locally");
 			//_clientConnected = 0;
 		}
 		case(6):
 		{
-			Log("SOCKET STATUS: Performing DNS Lookup");
+			//Log("SOCKET STATUS: Performing DNS Lookup");
 		}
 		case(7):
 		{
@@ -759,7 +759,7 @@ SOCKETSTATUS client
 		}
 		case(8):
 		{
-			Log("SOCKET STATUS: DNS Name Resolved");
+			//Log("SOCKET STATUS: DNS Name Resolved");
 		}
 		case(-1):
 		{
@@ -783,7 +783,7 @@ SOCKETSTATUS client
 		}
 		case(-5):
 		{
-			Log("SOCKET STATUS: No connection has been established");
+			//Log("SOCKET STATUS: No connection has been established");
 		}
 		case(-6):
 		{
@@ -792,7 +792,7 @@ SOCKETSTATUS client
 		}
 		default:
 		{
-			Log("Socket Status Undefined");
+			//Log("Socket Status Undefined");
 		}
 	};
 }
