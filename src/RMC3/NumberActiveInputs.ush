@@ -21,7 +21,6 @@
   SmplCName=NumberActiveInputs.usp
   Code=1
   SysRev5=3.090
-  SMWRev=2.02.05
   InputCue1=Composite
   InputSigType1=Digital
   InputCue2=HDMI1
