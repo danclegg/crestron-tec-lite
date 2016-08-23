@@ -129,25 +129,26 @@ RELEASE Slider_Press
 	
 	//PRINT("*** Desired_Volume: %d",Desired_Volume);
 	//PRINT("*** Volume at slider press: %d", Volume_at_slider_press);
-     
-	if ( Desired_Volume < Volume_at_slider_press) {
-		steps = (Volume_at_slider_press - Desired_Volume) / Scale_Factor;
-	//	Print("*** Steps Down: %d",steps);
-		for (x = 1 to steps)
-		{
-			Down();
+    if ( Track_Manually = 1){
+		if ( Desired_Volume < Volume_at_slider_press) {
+			steps = (Volume_at_slider_press - Desired_Volume) / Scale_Factor;
+		//	Print("*** Steps Down: %d",steps);
+			for (x = 1 to steps)
+			{
+				Down();
+			}
 		}
-	}
-	else if ( Desired_Volume > Volume_at_slider_press) {
-		steps = (Desired_Volume - Volume_at_slider_press) / Scale_Factor;
-	//	Print("*** Steps Up: %d",steps);
-		for (x = 1 to steps)
-		{
-			Up();
+		else if ( Desired_Volume > Volume_at_slider_press) {
+			steps = (Desired_Volume - Volume_at_slider_press) / Scale_Factor;
+		//	Print("*** Steps Up: %d",steps);
+			for (x = 1 to steps)
+			{
+				Up();
+			}
 		}
-	}
-	else {
-		// Do nothing
+		else {
+			// Do nothing
+		}
 	}
 	
 }
