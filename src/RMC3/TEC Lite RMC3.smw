@@ -6,7 +6,7 @@ ObjTp=FSgntr
 Sgntr=SimplWindow
 RelVrs=4.03.24
 IntStrVrs=2
-MinSMWVrs=3.00.00
+MinSMWVrs=4.02.22
 MinTIOVrs=700
 SavedBy=SMW4.03.20
 ]
@@ -1343,6 +1343,7 @@ ProdLine=Smart Graphics
 DbH=7
 CsH=6
 EtH=7
+VtpH=1
 mC=1
 C1=565
 ]
@@ -1417,6 +1418,7 @@ ProdLine=Smart Graphics
 DbH=4
 CsH=7
 EtH=4
+VtpH=2
 mC=1
 C1=567
 ]
@@ -1899,29 +1901,15 @@ Mx9=0
 ObjTp=Bw
 H=1
 Lx=0
-Ly=456
+Ly=0
 Rx=727
-Ry=912
+Ry=456
 Xm=-1
 Ym=-1
-SH=302
+SH=311
 Z=100
-Ht=1
-Hi=2
-]
-[
-ObjTp=Bw
-H=1
-Lx=727
-Ly=304
-Rx=1454
-Ry=608
-Xm=-1
-Ym=-1
-SH=309
-Z=100
-Ht=1
-Hi=2
+Ht=4
+Hi=1
 ]
 [
 ObjTp=Bw
@@ -1932,18 +1920,18 @@ Rx=1454
 Ry=304
 Xm=-1
 Ym=-1
-SH=182
+SH=309
 Z=100
 Ht=1
-Hi=803
+Hi=1
 ]
 [
 ObjTp=Bw
 H=1
-Lx=0
-Ly=0
-Rx=727
-Ry=456
+Lx=727
+Ly=304
+Rx=1454
+Ry=608
 Xm=-1
 Ym=-1
 SH=185
@@ -1960,10 +1948,24 @@ Rx=1454
 Ry=912
 Xm=-1
 Ym=-1
-SH=306
+SH=302
 Z=100
 Ht=1
-Hi=4
+Hi=2
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=456
+Rx=727
+Ry=912
+Xm=-1
+Ym=-1
+SH=328
+Z=100
+Ht=1
+Hi=3
 ]
 [
 ObjTp=Bw
@@ -2597,6 +2599,24 @@ H=12
 DvH=593
 IPM=255.255.255.0
 IPA=127.0.0.1
+]
+[
+ObjTp=VTP
+H=1
+DvH=559
+VtpGuid=CA5DE4E6-E798-40B0-A2A9-7BB8E314C61A
+VTPFile=.\TEC Lite TSW-750.vtp
+VtpVer=3
+TSAddr=04
+]
+[
+ObjTp=VTP
+H=2
+DvH=564
+VtpGuid=CA5DE4E6-E798-40B0-A2A9-7BB8E314C61A
+VTPFile=.\TEC Lite TSW-750.vtp
+VtpVer=3
+TSAddr=05
 ]
 [
 ObjTp=Sm
@@ -5606,6 +5626,24 @@ C2=110
 ]
 [
 ObjTp=Sm
+H=109
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_Blu-ray_Blu-ray DPad.ced
+ObjVer=1
+PrH=185
+CF=2
+n1I=5
+n1O=5
+Cmn1=v1
+mI=5
+mO=5
+tO=5
+mP=1
+P1=41d
+CedH=1
+]
+[
+ObjTp=Sm
 H=110
 SmC=858
 Nm=Make String Permanent
@@ -8424,10 +8462,13 @@ n1I=800
 n2I=74
 n1O=800
 Cmn1=Touchpanel2 TSW-750
-mC=3
+mC=6
 C1=187
 C2=202
 C3=204
+C4=331
+C5=332
+C6=333
 mI=898
 I6=20
 I9=143
@@ -9109,10 +9150,13 @@ n1I=400
 n2I=37
 n1O=400
 Cmn1=Touchpanel1 TSW-750
-mC=3
+mC=6
 C1=186
 C2=184
 C3=201
+C4=109
+C5=316
+C6=330
 mI=485
 I6=20
 I9=143
@@ -14207,6 +14251,24 @@ P2=.2s
 ]
 [
 ObjTp=Sm
+H=316
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_IPTV_IPTV DPad.ced
+ObjVer=1
+PrH=185
+CF=2
+n1I=5
+n1O=5
+Cmn1=v1
+mI=5
+mO=5
+tO=5
+mP=1
+P1=43d
+CedH=2
+]
+[
+ObjTp=Sm
 H=317
 SmC=46
 Nm=Analog Buffer
@@ -14552,6 +14614,144 @@ mO=2
 tO=2
 O1=184
 O2=183
+]
+[
+ObjTp=Sm
+H=330
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_IPTV_IPTV Keypad.ced
+ObjVer=1
+PrH=185
+CF=2
+n1I=12
+n1O=12
+Cmn1=v1
+mI=12
+mO=12
+tO=12
+mP=1
+P1=42d
+CedH=3
+]
+[
+ObjTp=Sm
+H=331
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_Blu-ray_Blu-ray DPad.ced
+ObjVer=1
+PrH=182
+CF=2
+n1I=5
+n1O=5
+Cmn1=v1
+mI=5
+mO=5
+tO=5
+mP=1
+P1=41d
+CedH=4
+]
+[
+ObjTp=Sm
+H=332
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_IPTV_IPTV DPad.ced
+ObjVer=1
+PrH=182
+CF=2
+n1I=5
+n1O=5
+Cmn1=v1
+mI=5
+mO=5
+tO=5
+mP=1
+P1=43d
+CedH=5
+]
+[
+ObjTp=Sm
+H=333
+SmC=2942
+Nm=TEC Lite TSW-750__Device_Control_IPTV_IPTV Keypad.ced
+ObjVer=1
+PrH=182
+CF=2
+n1I=12
+n1O=12
+Cmn1=v1
+mI=12
+mO=12
+tO=12
+mP=1
+P1=42d
+CedH=6
+]
+[
+ObjTp=CED
+H=1
+SmH=109
+CedVer=1
+CedMod=
+GUID=009414B0-22EE-4C16-BEEF-0FCF7D2E8052
+Hint=Blu-ray DPad (Smart Object ID=41)
+SGControlType=DPad
+SGControlName=Blu-ray DPad
+]
+[
+ObjTp=CED
+H=2
+SmH=316
+CedVer=1
+CedMod=
+GUID=9F6BE149-1893-4E14-AA06-5DD9EF8D3FAE
+Hint=IPTV DPad (Smart Object ID=43)
+SGControlType=DPad
+SGControlName=IPTV DPad
+]
+[
+ObjTp=CED
+H=3
+SmH=330
+CedVer=1
+CedMod=
+GUID=086FB11A-62BB-4EA5-9A8C-71B88A0F8C16
+Hint=IPTV Keypad (Smart Object ID=42)
+SGControlType=Simple Keypad
+SGControlName=IPTV Keypad
+]
+[
+ObjTp=CED
+H=4
+SmH=331
+CedVer=1
+CedMod=
+GUID=009414B0-22EE-4C16-BEEF-0FCF7D2E8052
+Hint=Blu-ray DPad (Smart Object ID=41)
+SGControlType=DPad
+SGControlName=Blu-ray DPad
+]
+[
+ObjTp=CED
+H=5
+SmH=332
+CedVer=1
+CedMod=
+GUID=9F6BE149-1893-4E14-AA06-5DD9EF8D3FAE
+Hint=IPTV DPad (Smart Object ID=43)
+SGControlType=DPad
+SGControlName=IPTV DPad
+]
+[
+ObjTp=CED
+H=6
+SmH=333
+CedVer=1
+CedMod=
+GUID=086FB11A-62BB-4EA5-9A8C-71B88A0F8C16
+Hint=IPTV Keypad (Smart Object ID=42)
+SGControlType=Simple Keypad
+SGControlName=IPTV Keypad
 ]
 [
 ObjTp=Sg
@@ -20018,7 +20218,7 @@ Nm=SwitchSonyToComposite
 [
 ObjTp=Sg
 H=1037
-Nm=Used_to_be_called_Slider_fb
+Nm=Slider_fb
 SgTp=2
 ]
 [
