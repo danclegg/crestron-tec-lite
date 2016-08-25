@@ -20,8 +20,8 @@
   Name=Volume Press and Hold
   SmplCName=Volume Press and Hold.usp
   Code=1
-  SysRev5=3.090
-  SMWRev=2.02.05
+  SysRev5=4.006
+  SMWRev=3.00.00
   InputCue1=Up_Press
   InputSigType1=Digital
   InputCue2=Down_Press
