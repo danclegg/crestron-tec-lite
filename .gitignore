@@ -8,3 +8,9 @@ src/RMC3/TEC Lite TSW-750.VTZ*
 src/RMC3/SPlsWork/*
 src/TPCS/SPlsWork/*
 src/FT/SPlsWork/*
+src/RMC3/*.ush
+src/FT/*.ush
+src/TPCS/*.ush
+src/RMC3/BSS London Crestron/*.ush
+src/TPCS/BSS London Crestron/*.ush
+src/FT/BSS London Crestron/*.ush

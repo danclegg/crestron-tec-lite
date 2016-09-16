@@ -17,6 +17,7 @@ Comments: Track Volume when dealing with a CEC display
 #SYMBOL_NAME "Track CEC Volume"
 #CATEGORY "46" "Volume"
 #DEFINE_CONSTANT	BIGGESTSIZE	65534
+#DEFINE_CONSTANT	OVERAGE	2
 #DEFINE_CONSTANT	MAXVOLUME	100
 #DEFINE_CONSTANT	MINVOLUME	0
 #DEFAULT_VOLATILE
@@ -40,7 +41,7 @@ ANALOG_OUTPUT _volume;
          For example, in Function Main: myString = "";
 *******************************************************************************************/
 
-INTEGER Current_Volume,Track_Manually,Scale_Factor,Goal,Volume_at_slider_press;
+INTEGER Current_Volume,Track_Manually,Scale_Factor,Goal,Volume_at_slider_press,Wait_For_Slider_Release;
 
 /*******************************************************************************************
   Functions
@@ -57,19 +58,29 @@ Function ResetVolume()
 
 Function Up()
 {
-	Program_Volume_Up = 1;
-	Delay(10);
-	Program_Volume_Up = 0;
+	INTEGER x;
+	Print("!!!!UP!!!!");
+	//for (x=1 to OVERAGE){
+		Program_Volume_Up = 1;
+		Delay(10);
+		Program_Volume_Up = 0;
+	//}
 	Current_Volume = Current_Volume + (Scale_Factor / 2);
+	//Current_Volume = Current_Volume + Scale_Factor;
 	_Volume = Current_Volume;
 }
 
 Function Down()
-{
-	Program_Volume_Down = 1;
-	Delay(10);
-	Program_Volume_Down = 0;
+{	
+	INTEGER x;
+	Print("?????DOWN?????");
+	//for (x=1 to OVERAGE){
+		Program_Volume_Down = 1;
+		Delay(10);
+		Program_Volume_Down = 0;
+	//}
 	Current_Volume = Current_Volume - (Scale_Factor / 2);
+	//Current_Volume = Current_Volume - Scale_Factor;
 	_Volume = Current_Volume;
 
 }
@@ -82,12 +93,14 @@ Function Down()
 PUSH Display_Is_CEC
 {
     ResetVolume();
+	Print("Setting Track Manually to TRUE");
 	Track_Manually = 1;	    
 }
 
 RELEASE Display_Is_CEC
 {
     ResetVolume();
+	Print("Setting Track Manually to FALSE");
 	Track_Manually = 0;	    
 }
 
@@ -98,23 +111,55 @@ RELEASE Reset_Volume
 
 RELEASE Volume_Up
 {
+	INTEGER c,diff;
+	c = Current_Volume + Scale_Factor;
+	diff = BIGGESTSIZE - Current_Volume;
+	Print("!!!!!! c=%d, d=%d\n",c,diff);
+
 	if(Track_Manually = 1){
-	    Current_Volume = Current_Volume + (Scale_Factor);
-		_Volume = Current_Volume;
+		if(c <= BIGGESTSIZE){
+	    	Current_Volume = c;
+			_Volume = Current_Volume;
+		}
+		else if (c > BIGGESTSIZE){
+			Current_Volume = BIGGESTSIZE;
+			_Volume = Current_Volume;
+		}
+		else {
+        	//Do nothing
+		}
 	}
 }
 
 RELEASE Volume_Down
 {
-    if(Track_Manually = 1){
-	    Current_Volume = Current_Volume - (Scale_Factor);
-		_Volume = Current_Volume;
+	INTEGER c,diff;
+	c = Current_Volume - Scale_Factor;
+	diff = MINVOLUME - Current_Volume;
+	Print("!!!!!! c=%d, d=%d\n",c,diff);
+
+	if(Track_Manually = 1){
+		if(c >= MINVOLUME){
+			Current_Volume = Current_Volume - Scale_Factor;
+			_Volume = Current_Volume;
+		}
+		else if (c < MINVOLUME)
+		{
+			Current_Volume = MINVOLUME;
+			_Volume = Current_Volume;		
+		}
+		else {
+         	//Do Nothing
+		}
 	}
 }
  
 PUSH Slider_Press
 {
-	Volume_at_slider_press = Volume;
+	If (Wait_For_Slider_Release = 0){
+		Volume_at_slider_press = Volume;
+		Wait_For_Slider_Release = 1;
+	}
 }
 
 RELEASE Slider_Press
@@ -123,24 +168,26 @@ RELEASE Slider_Press
 	Desired_Volume = Volume;
 	//PRINT("*************");
 	
-	//PRINT("*************");
+	//Print("*************");
 
-	//PRINT("*************");
+	//Print("*************");
 	
-	//PRINT("*** Desired_Volume: %d",Desired_Volume);
-	//PRINT("*** Volume at slider press: %d", Volume_at_slider_press);
+	Print("*** Desired_Volume: %d",Desired_Volume);
+	//Print("*** Volume at slider press: %d", Volume_at_slider_press);
     if ( Track_Manually = 1){
 		if ( Desired_Volume < Volume_at_slider_press) {
-			steps = (Volume_at_slider_press - Desired_Volume) / Scale_Factor;
-		//	Print("*** Steps Down: %d",steps);
+			// It seems that we're executing 2.1 - 2.8 times more presses than we should be, hence OVERAGE
+			steps = (Volume_at_slider_press - Desired_Volume) / Scale_Factor / OVERAGE;
+			//Print("*** Steps Down: %d",steps);
 			for (x = 1 to steps)
 			{
 				Down();
 			}
 		}
 		else if ( Desired_Volume > Volume_at_slider_press) {
-			steps = (Desired_Volume - Volume_at_slider_press) / Scale_Factor;
-		//	Print("*** Steps Up: %d",steps);
+			// It seems that we're executing 2.1 - 2.8 times more presses than we should be, hence OVERAGE
+			steps = (Desired_Volume - Volume_at_slider_press) / Scale_Factor / OVERAGE;
+			//Print("*** Steps Up: %d",steps);
 			for (x = 1 to steps)
 			{
 				Up();
@@ -150,7 +197,7 @@ RELEASE Slider_Press
 			// Do nothing
 		}
 	}
-	
+	Wait_For_Slider_Release = 0;	
 }
 
 CHANGE Volume
@@ -170,6 +217,7 @@ Function Main()
 	Track_Manually = 0;
 	Scale_Factor = BIGGESTSIZE / MAXVOLUME;
 	Goal = 0;
+	Wait_For_Slider_Release = 0;
 
 	WaitForInitializationComplete();
 }
