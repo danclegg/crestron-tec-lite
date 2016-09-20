@@ -231,18 +231,18 @@ Function BuildHttpMessage(STRING EVENTACTOR, STRING EVENTACTION, STRING userOrSy
 	header4 = "Content-Length: " + CLString + NEWLINE;
 	header5 = "Content-type: text/plain;charset=UTF-8" + NEWLINE;
 	header6 = "Accept: */*" + NEWLINE;
-	//Print("%s",header1);
-	//Print("%s",header1);
-	//Print("%s",header2);
-	//Print("%s",header3);
-	//Print("%s",header4);
-	//Print("%s",header5);
-	//Print("%s",header6);
-	//Print("%s",NEWLINE);
-	//Print("%s",innerMsg1);
-	//Print("%s",innerMsg2);
-	//Print("%s",innerMsg3);
-	//Print("%s",innerMsg4);
+	Print("%s",header1);
+	Print("%s",header1);
+	Print("%s",header2);
+	Print("%s",header3);
+	Print("%s",header4);
+	Print("%s",header5);
+	Print("%s",header6);
+	Print("%s",NEWLINE);
+	Print("%s",innerMsg1);
+	Print("%s",innerMsg2);
+	Print("%s",innerMsg3);
+	Print("%s",innerMsg4);
 
 	Send(header1);
 	Send(header2);
@@ -676,11 +676,15 @@ THREADSAFE SOCKETCONNECT client
 	BuildHttpMessage("controlProcessor", "System active",SYSTEM,"");
 
 	// Starts timer to force reconnect of stale session
+
+	#IF_SERIES2
 	WAIT (RECONNECTTIME, ReconnectTimer)
 	{
 		_clientConnected = 0;
 		_clientConnected = 1;
 	}
+	#ENDIF
+	
 }
 
 // The SOCKETDISCONNECT event is called when a TCP_CLIENT or  TCP_SERVER socket is disconnected. Determine if this was done remotely (i.e. network, remote server, etc.) or locally via this module
@@ -693,13 +697,19 @@ SOCKETDISCONNECT client
 	_clientConnected = 0;
 	_clientConnected = 1;
 	
+
+	#IF_SERIES2
 	CancelWait(ReconnectTimer);
+	#ENDIF
 }
 
 // Display the data received from the calls to the client and clear the buffer
 SOCKETRECEIVE client
 {
+	
+	#IF_SERIES2
 	RetimeWait(RECONNECTTIME, ReconnectTimer);
+	#ENDIF
 	
 	//STRING received$[1024];
 	//received$ = client.SocketRxBuf;
@@ -722,16 +732,19 @@ SOCKETSTATUS client
 	{
 		case(0):
 		{
-			//Log("SOCKET STATUS: Not Connected");
+			//Comment this eventually
+			Log("SOCKET STATUS: Not Connected");
 			//_clientConnected = 0;
 		}
 		case(1):
 		{
-			//Log("SOCKET STATUS: Waiting for Connection");
+			//Comment this eventually
+			Log("SOCKET STATUS: Waiting for Connection");
 		}
 		case(2):
 		{
-			//Log("SOCKET STATUS: Connected");
+			//Comment this eventually
+			Log("SOCKET STATUS: Connected");
 		}
 		case(3):
 		{
@@ -740,17 +753,20 @@ SOCKETSTATUS client
 		}
 		case(4):
 		{
-			//Log("SOCKET STATUS: Connection Broken Remotely");
+			//Comment this eventually
+			Log("SOCKET STATUS: Connection Broken Remotely");
 			//_clientConnected = 0;
 		}
 		case(5):
 		{
-			//Log("SOCKET STATUS: Connection Broken Locally");
+			//Comment this eventually
+			Log("SOCKET STATUS: Connection Broken Locally");
 			//_clientConnected = 0;
 		}
 		case(6):
 		{
-			//Log("SOCKET STATUS: Performing DNS Lookup");
+			//Comment this eventually
+			Log("SOCKET STATUS: Performing DNS Lookup");
 		}
 		case(7):
 		{
@@ -759,7 +775,8 @@ SOCKETSTATUS client
 		}
 		case(8):
 		{
-			//Log("SOCKET STATUS: DNS Name Resolved");
+			//Comment this eventually
+			Log("SOCKET STATUS: DNS Name Resolved");
 		}
 		case(-1):
 		{
@@ -783,7 +800,8 @@ SOCKETSTATUS client
 		}
 		case(-5):
 		{
-			//Log("SOCKET STATUS: No connection has been established");
+			//Comment this eventually
+			Log("SOCKET STATUS: No connection has been established");
 		}
 		case(-6):
 		{
@@ -792,7 +810,8 @@ SOCKETSTATUS client
 		}
 		default:
 		{
-			//Log("Socket Status Undefined");
+			//Comment this eventually
+			Log("Socket Status Undefined");
 		}
 	};
 }
