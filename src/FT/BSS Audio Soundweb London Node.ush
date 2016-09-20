@@ -6,7 +6,7 @@
   Sgntr=UserSPlus
   RelVrs=1
   IntStrVrs=1
-  SPlusVrs=4.03.16
+  SPlusVrs=4.04.01
   CrossCplrVrs=1.3
 [END]
 [BEGIN]
@@ -23,7 +23,7 @@
   SmplCName=BSS Audio Soundweb London Node.usp
   Code=1
   SysRev5=4.000
-  SMWRev=2.02.05
+  SMWRev=3.00.00
   InputList2Cue1=[~UNUSED~]
   InputList2SigType1=Serial
   InputList2Cue2=comRx$

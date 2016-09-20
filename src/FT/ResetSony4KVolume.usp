@@ -1,0 +1,55 @@
+// Module Info
+/*
+	Name: Reset Sony 4K Volume
+	Engineer: Dan Clegg
+	Company: Brigham Young University
+	Version: 1.0
+*/
+
+// Compiler Directives
+#Symbol_Name "Reset Sony 4K Volume"
+#CATEGORY "46" "Volume"  //Custom
+#Default_Volatile	//All variables are in volitile memory (will be erased upon reboot)
+#Enable_Stack_Checking
+#Enable_Trace
+
+// Input output variables
+DIGITAL_INPUT Start_Reset;
+ANALOG_INPUT Volume_Level_In;
+
+DIGITAL_OUTPUT Volume_Up,Volume_Down;
+ANALOG_OUTPUT Volume_Level_Out;
+
+// Event Handlers
+
+Push Start_Reset
+{
+	INTEGER COUNTER;
+	FOR (COUNTER = 0 to 100){		
+		Volume_Down = 1;
+		Delay(5);
+		Volume_Down = 0;
+//		Delay(5);
+		COUNTER = COUNTER + 1;
+	}
+	Volume_Down = 0;
+
+/*	FOR (COUNTER = 0 to 9){		
+		Volume_Down = 1;
+		Delay(5);
+		Volume_Down = 0;
+//		Delay(5);
+		COUNTER = COUNTER + 1;
+	}
+	Volume_Down = 0;*/
+
+	Volume_Level_Out = 0;
+
+}
+
+//Function Main
+
+Function Main()	//Gets run at startup
+{
+	waitforinitializationcomplete();
+}
