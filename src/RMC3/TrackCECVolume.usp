@@ -113,21 +113,13 @@ RELEASE Reset_Volume
 
 RELEASE Volume_Up
 {
-	INTEGER c,diff,compareVal;
-	compareVal = BIGGESTSIZE - Scale_Factor;
-	if( Current_Volume > compareVal)
-	{
-		c = BIGGESTSIZE;
-	}
-	else {
-		c = Current_Volume + Scale_Factor;
-	}
-//	c = Current_Volume + Scale_Factor;
-//	diff = BIGGESTSIZE - Current_Volume;
-//	Print("!!!!!! c=%d, d=%d\n",c,diff);
+	INTEGER c,diff;
+	c = Current_Volume + Scale_Factor;
+	diff = BIGGESTSIZE - Current_Volume;
+	Print("!!!!!! c=%d, d=%d\n",c,diff);
 
 	if(Track_Manually = 1){
-		/*if(c <= BIGGESTSIZE){
+		if(c <= BIGGESTSIZE){
 	    	Current_Volume = c;
 			_Volume = Current_Volume;
 		}
@@ -137,28 +129,19 @@ RELEASE Volume_Up
 		}
 		else {
         	//Do nothing
-		}*/
-		Current_Volume = c;
-		_Volume = Current_Volume;
+		}
 	}
 }
 
 RELEASE Volume_Down
 {
-	INTEGER c,diff,compareVal;
-	compareVal = MINVOLUME + Scale_Factor;
-	if( Current_Volume < compareVal)
-	{
-		c = MINVOLUME;
-	}
-	else {
-		c = Current_Volume - Scale_Factor;
-	}
-//	diff = MINVOLUME - Current_Volume;
-//	Print("!!!!!! c=%d, d=%d\n",c,diff);
+	INTEGER c,diff;
+	c = Current_Volume - Scale_Factor;
+	diff = MINVOLUME - Current_Volume;
+	Print("!!!!!! c=%d, d=%d\n",c,diff);
 
 	if(Track_Manually = 1){
-		/*if(c >= MINVOLUME){
+		if(c >= MINVOLUME){
 			Current_Volume = Current_Volume - Scale_Factor;
 			_Volume = Current_Volume;
 		}
@@ -169,9 +152,7 @@ RELEASE Volume_Down
 		}
 		else {
          	//Do Nothing
-		}*/
-		Current_Volume = c;
-		_Volume = Current_Volume;
+		}
 	}
 }
  
